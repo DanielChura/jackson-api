@@ -3,6 +3,7 @@ package com.jackson_api.JacksonApi.domain.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
@@ -23,7 +24,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "products")
@@ -56,24 +59,22 @@ public class Product {
     @Column(name = "stock", nullable = false)
     private Short stock;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     @ToString.Exclude
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "brand_id", nullable = false)
     @ToString.Exclude
     private Brand brand;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "specifications", columnDefinition = "jsonb")
-    private String specifications;
+    private Map<String, String> specifications;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
-
-    @Column(name = "is_featured", nullable = false)
-    private Boolean isFeatured;
 
     @Column(name = "created_at")
     @CreationTimestamp

@@ -8,6 +8,8 @@ import com.jackson_api.JacksonApi.domain.entity.User;
 import com.jackson_api.JacksonApi.domain.repository.RoleRepository;
 import com.jackson_api.JacksonApi.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +36,12 @@ public class UserService {
         return responses;
     }
 
-    public User getUserById(UUID id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public UserResponse getUserById(UUID id) {
+        return userMapper.toResponse(
+                userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
     }
 
-    public UserResponse createUser(CreateUserRequest request) {
+    public UserResponse createUser(@NonNull CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("El email ya existe");
         }
@@ -62,4 +65,20 @@ public class UserService {
         return userMapper.toResponse(userRepository.save(user));
     }
 
+    public UserResponse updateUser(UUID id, CreateUserRequest request) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setAddress(request.getAddress());
+        user.setEmail(request.getEmail());
+        user.setFirstName(request.getFirstName());
+        user.setPhone(request.getPhone());
+        user.setPassword(request.getPassword());
+        user.setLastName(request.getLastName());
+
+        return userMapper.toResponse(userRepository.save(user));
+    }
+
+    public void delete(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        userRepository.delete(user);
+    }
 }
