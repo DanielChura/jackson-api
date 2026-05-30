@@ -171,7 +171,7 @@ CREATE TABLE products (
     description TEXT,
 
     -- FIX:
-    -- price should NEVER be INT
+    -- unitPrice should NEVER be INT
     -- NUMERIC is correct for money
     price NUMERIC(10,2) NOT NULL DEFAULT 0,
 
@@ -210,8 +210,6 @@ CREATE TABLE product_images (
     product_id UUID NOT NULL,
 
     url TEXT NOT NULL,
-
-    is_main BOOLEAN NOT NULL DEFAULT FALSE,
 
     display_order SMALLINT DEFAULT 0,
 

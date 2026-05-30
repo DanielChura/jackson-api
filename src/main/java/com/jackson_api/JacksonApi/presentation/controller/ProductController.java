@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequestMapping("product")
 public class ProductController {
 
-    private ProductService productService;
+    private final ProductService productService;
 
     public ProductController(ProductService productService) {
         this.productService = productService;
@@ -44,7 +44,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> update(@PathVariable UUID id, @RequestBody CreateProductRequest product) {
         ProductResponse response = productService.updateProduct(id, product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")

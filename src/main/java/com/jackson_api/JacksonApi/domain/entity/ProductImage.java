@@ -35,16 +35,13 @@ public class ProductImage {
     @EqualsAndHashCode.Include
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     @ToString.Exclude
     private Product product;
 
     @Column(name = "url", nullable = false, columnDefinition = "TEXT")
     private String url;
-
-    @Column(name = "is_main", nullable = false)
-    private Boolean isMain;
 
     @Column(name = "display_order")
     private Short displayOrder;

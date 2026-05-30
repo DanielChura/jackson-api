@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Custom ###
+ROADMAP.md
+*.log
+.DS_Store
+application-local.*
+application-secret.*

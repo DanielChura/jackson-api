@@ -32,7 +32,7 @@ public class RoleService {
     }
 
     public RoleResponse patchRole(UUID id, CreateRoleRequest request) {
-        Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role no encontrado"));
         return roleMapper.toResponse(roleRepository.save(roleMapper.toPatch(role, request)));
     }
 }
