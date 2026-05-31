@@ -1,27 +1,21 @@
 package com.jackson_api.JacksonApi.domain.entity;
 
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.jackson_api.JacksonApi.domain.enums.OrderStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(name = "orders")
@@ -39,7 +33,7 @@ public class Order {
     @EqualsAndHashCode.Include
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private User user;
@@ -66,6 +60,11 @@ public class Order {
     @Column(name = "status", nullable = false)
     private OrderStatus status;
 
+    @OneToMany( mappedBy = "order",fetch = FetchType.EAGER)
+    @ToString.Exclude
+    private List<OrderDetail> orderDetails = new ArrayList<>();
+
     @Column(name = "ordered_at")
+    @CreatedDate
     private LocalDateTime orderedAt;
 }
