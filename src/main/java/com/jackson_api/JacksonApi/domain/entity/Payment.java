@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "payments")
@@ -61,5 +62,6 @@ public class Payment {
     private UUID transactionId;
 
     @Column(name = "paid_at")
+    @UpdateTimestamp
     private LocalDateTime paidAt;
 }

@@ -11,7 +11,7 @@ public class OrderDetailResponse {
     UUID id;
     UUID orderId;
     UUID productId;
-    String product_name;
+    String productName;
     Short quantity;
     BigDecimal unitPrice;
     BigDecimal subtotal;

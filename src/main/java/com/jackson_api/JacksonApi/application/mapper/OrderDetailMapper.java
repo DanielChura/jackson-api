@@ -14,7 +14,7 @@ public class OrderDetailMapper {
         response.setOrderId(order.getOrder().getId());
         response.setQuantity(order.getQuantity());
         response.setProductId(order.getProduct().getId());
-        response.setProduct_name(order.getProductName());
+        response.setProductName(order.getProductName());
         response.setUnitPrice(order.getUnitPrice());
 
         return response;
