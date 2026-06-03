@@ -5,6 +5,7 @@ import com.jackson_api.JacksonApi.application.dto.request.CreateOrderRequest;
 import com.jackson_api.JacksonApi.application.dto.response.OrderDetailResponse;
 import com.jackson_api.JacksonApi.application.dto.response.OrderResponse;
 import com.jackson_api.JacksonApi.application.service.OrderDetailService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
@@ -32,7 +33,7 @@ public class OrderDetailController {
     }
 
     @PostMapping("/order/{id}")
-    public ResponseEntity<OrderResponse> add(@PathVariable UUID id, @RequestBody List<CreateOrderDetailRequest> request){
+    public ResponseEntity<OrderResponse> add(@PathVariable UUID id, @Valid @RequestBody List<CreateOrderDetailRequest> request){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderDetailService.addOrderDetails(id,request));
     }

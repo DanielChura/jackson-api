@@ -6,17 +6,15 @@ import com.jackson_api.JacksonApi.application.mapper.PaymentMapper;
 import com.jackson_api.JacksonApi.domain.entity.Order;
 import com.jackson_api.JacksonApi.domain.entity.OrderDetail;
 import com.jackson_api.JacksonApi.domain.entity.Payment;
-import com.jackson_api.JacksonApi.domain.entity.Product;
+import com.jackson_api.JacksonApi.domain.enums.MovementType;
 import com.jackson_api.JacksonApi.domain.enums.OrderStatus;
 import com.jackson_api.JacksonApi.domain.enums.PaymentStatus;
 import com.jackson_api.JacksonApi.domain.repository.OrderRepository;
 import com.jackson_api.JacksonApi.domain.repository.PaymentRepository;
-import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +25,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
+    private final InventoryMovementService inventoryMovementService;
     private final PaymentMapper paymentMapper;
 
     public List<PaymentResponse> getAllPayments() {
@@ -53,6 +51,10 @@ public class PaymentService {
 
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new RuntimeException("La orden ya no esta pendiente");
+        }
+
+        if (!paymentRepository.findByOrder_Id(order.getId()).isEmpty()) {
+            throw new RuntimeException("La orden ya tiene un pago registrado");
         }
 
         if (request.getAmount().compareTo(order.getTotal()) != 0) {
@@ -82,14 +84,14 @@ public class PaymentService {
             orderRepository.save(order);
 
             for (OrderDetail detail : order.getOrderDetails()) {
-                Product product = detail.getProduct();
-
-                if (product.getStock() < detail.getQuantity()) {
-                    throw new RuntimeException("Stock insuficiente para " + product.getName());
-                }
-
-                product.setStock((short) (product.getStock() - detail.getQuantity()));
-                productRepository.save(product);
+                String motivo = "Venta - " + detail.getQuantity() + "x " + detail.getProductName()
+                        + " (Orden #" + order.getOrderNumber() + ")";
+                inventoryMovementService.recordMovement(
+                        detail.getProduct(),
+                        detail.getQuantity(),
+                        MovementType.SALE,
+                        motivo
+                );
             }
         }
 

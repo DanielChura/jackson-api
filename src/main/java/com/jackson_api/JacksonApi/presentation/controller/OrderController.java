@@ -4,6 +4,7 @@ import com.jackson_api.JacksonApi.application.dto.request.CreateOrderRequest;
 import com.jackson_api.JacksonApi.application.dto.request.UpdateOrderStatusRequest;
 import com.jackson_api.JacksonApi.application.dto.response.OrderResponse;
 import com.jackson_api.JacksonApi.application.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +35,12 @@ public class OrderController {
     }
 
     @PostMapping()
-    public ResponseEntity<OrderResponse> create(@RequestBody CreateOrderRequest request){
+    public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.create(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderResponse> update(@PathVariable UUID id, @RequestBody UpdateOrderStatusRequest request){
+    public ResponseEntity<OrderResponse> update(@PathVariable UUID id, @Valid @RequestBody UpdateOrderStatusRequest request){
 
         return ResponseEntity.status(HttpStatus.OK).body(orderService.updateStatus(id, request.getStatus()));
     }

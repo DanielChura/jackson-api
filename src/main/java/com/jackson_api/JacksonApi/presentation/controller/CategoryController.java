@@ -4,6 +4,7 @@ import com.jackson_api.JacksonApi.application.dto.request.CreateCategoryRequest;
 import com.jackson_api.JacksonApi.application.dto.response.CategoryResponse;
 import com.jackson_api.JacksonApi.application.service.CategoryService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> create(@RequestBody CreateCategoryRequest request) {
+    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CreateCategoryRequest request) {
         CategoryResponse response = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -40,7 +41,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> update(@PathVariable UUID id, @RequestBody CreateCategoryRequest request) {
+    public ResponseEntity<CategoryResponse> update(@PathVariable UUID id, @Valid @RequestBody CreateCategoryRequest request) {
         CategoryResponse response = categoryService.updateCategory(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

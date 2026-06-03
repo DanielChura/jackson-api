@@ -3,6 +3,7 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateRoleRequest;
 import com.jackson_api.JacksonApi.application.dto.response.RoleResponse;
 import com.jackson_api.JacksonApi.application.service.RoleService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +31,12 @@ public class RoleController {
     }
 
     @PostMapping()
-    public ResponseEntity<RoleResponse> create(@RequestBody CreateRoleRequest request) {
+    public ResponseEntity<RoleResponse> create(@Valid @RequestBody CreateRoleRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(roleService.createRole(request));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<RoleResponse> patch(@PathVariable UUID id, @RequestBody CreateRoleRequest request) {
+    public ResponseEntity<RoleResponse> patch(@PathVariable UUID id, @Valid @RequestBody CreateRoleRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(roleService.patchRole(id, request));
     }
 }

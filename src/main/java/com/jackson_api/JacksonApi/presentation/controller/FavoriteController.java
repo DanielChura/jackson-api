@@ -3,6 +3,7 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateFavoriteRequest;
 import com.jackson_api.JacksonApi.application.dto.response.FavoriteResponse;
 import com.jackson_api.JacksonApi.application.service.FavoriteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class FavoriteController {
     }
 
     @PostMapping()
-    public ResponseEntity<FavoriteResponse> add(@RequestBody CreateFavoriteRequest request){
+    public ResponseEntity<FavoriteResponse> add(@Valid @RequestBody CreateFavoriteRequest request){
         return  ResponseEntity.status(HttpStatus.CREATED).body(favoriteService.addFavorite(request));
     }
 

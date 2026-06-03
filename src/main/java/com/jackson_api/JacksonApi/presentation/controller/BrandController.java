@@ -3,6 +3,7 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateBrandRequest;
 import com.jackson_api.JacksonApi.application.dto.response.BrandResponse;
 import com.jackson_api.JacksonApi.application.service.BrandService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class BrandController {
     }
 
     @PostMapping()
-    public ResponseEntity<BrandResponse> create(@RequestBody CreateBrandRequest request) {
+    public ResponseEntity<BrandResponse> create(@Valid @RequestBody CreateBrandRequest request) {
         BrandResponse response = brandService.createBrand(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -39,7 +40,7 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BrandResponse> update(@PathVariable UUID id, @RequestBody CreateBrandRequest request) {
+    public ResponseEntity<BrandResponse> update(@PathVariable UUID id, @Valid @RequestBody CreateBrandRequest request) {
         BrandResponse response = brandService.updateBrand(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

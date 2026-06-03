@@ -6,9 +6,12 @@ import com.jackson_api.JacksonApi.application.mapper.ProductMapper;
 import com.jackson_api.JacksonApi.domain.entity.Brand;
 import com.jackson_api.JacksonApi.domain.entity.Category;
 import com.jackson_api.JacksonApi.domain.entity.Product;
+import com.jackson_api.JacksonApi.domain.enums.MovementType;
+import com.jackson_api.JacksonApi.domain.exceptions.ResourceNotFoundException;
 import com.jackson_api.JacksonApi.domain.repository.BrandRepository;
 import com.jackson_api.JacksonApi.domain.repository.CategoryRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
+    private final InventoryMovementService inventoryMovementService;
     private final ProductMapper productMapper;
 
     public List<ProductResponse> getAllProducts() {
@@ -43,10 +47,10 @@ public class ProductService {
             throw new RuntimeException("El producto ya existe");
         }
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category no encontrada"));
 
         Brand brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new RuntimeException("Brand not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Marca no encontrada"));
 
         Product product = productMapper.toCreate(request, category, brand);
         Product productSaved = productRepository.save(product);
@@ -56,36 +60,50 @@ public class ProductService {
 
     public ProductResponse getProductById(UUID id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
         return productMapper.toResponse(product);
 
     }
 
+    @Transactional
     public ProductResponse updateProduct(UUID id, CreateProductRequest request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
 
         Brand brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new RuntimeException("Brand not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Marca no encontrada"));
+
+        Short oldStock = product.getStock();
+        Short newStock = request.getStock();
 
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
-        product.setStock(request.getStock());
+        product.setStock(newStock);
         product.setCategory(category);
         product.setBrand(brand);
         product.setSpecifications(request.getSpecifications());
 
-        return productMapper.toResponse(productRepository.save(product));
+        ProductResponse response = productMapper.toResponse(productRepository.save(product));
+
+        if (!oldStock.equals(newStock)) {
+            String motivo = "Ajuste manual - " + product.getName()
+                    + " (de " + oldStock + " a " + newStock + ")";
+            inventoryMovementService.recordMovement(
+                    product, newStock, MovementType.ADJUSTMENT, motivo
+            );
+        }
+
+        return response;
     }
 
     public void deleteProduct(UUID id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
         productRepository.delete(product);
     }
 }

@@ -4,6 +4,7 @@ import com.jackson_api.JacksonApi.application.dto.request.CreateReviewRequest;
 import com.jackson_api.JacksonApi.application.dto.request.UpdateReviewRequest;
 import com.jackson_api.JacksonApi.application.dto.response.ReviewResponse;
 import com.jackson_api.JacksonApi.application.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,13 +41,13 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<ReviewResponse> create(@RequestBody CreateReviewRequest request) {
+    public ResponseEntity<ReviewResponse> create(@Valid @RequestBody CreateReviewRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(reviewService.createReview(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReviewResponse> update(@PathVariable UUID id, @RequestBody UpdateReviewRequest request) {
+    public ResponseEntity<ReviewResponse> update(@PathVariable UUID id, @Valid @RequestBody UpdateReviewRequest request) {
         return ResponseEntity.ok(reviewService.updateReview(id, request));
     }
 

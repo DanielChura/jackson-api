@@ -4,6 +4,7 @@ import com.jackson_api.JacksonApi.application.dto.request.CreatePaymentRequest;
 import com.jackson_api.JacksonApi.application.dto.request.UpdatePaymentStatusRequest;
 import com.jackson_api.JacksonApi.application.dto.response.PaymentResponse;
 import com.jackson_api.JacksonApi.application.service.PaymentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<PaymentResponse> create(@RequestBody CreatePaymentRequest request) {
+    public ResponseEntity<PaymentResponse> create(@Valid @RequestBody CreatePaymentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(paymentService.createPayment(request));
     }
@@ -43,7 +44,7 @@ public class PaymentController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<PaymentResponse> updateStatus(
             @PathVariable UUID id,
-            @RequestBody UpdatePaymentStatusRequest request) {
+            @Valid @RequestBody UpdatePaymentStatusRequest request) {
         return ResponseEntity.ok(paymentService.updatePaymentStatus(id, request.getStatus()));
     }
 }

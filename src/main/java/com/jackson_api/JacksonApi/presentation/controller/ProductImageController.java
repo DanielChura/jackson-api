@@ -3,6 +3,7 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateProductImageRequest;
 import com.jackson_api.JacksonApi.application.dto.response.ProductImageResponse;
 import com.jackson_api.JacksonApi.application.service.ProductImageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class ProductImageController {
     }
 
     @PostMapping("/product/{id}")
-    public ResponseEntity<ProductImageResponse> create(@PathVariable UUID id, @RequestBody CreateProductImageRequest request) {
+    public ResponseEntity<ProductImageResponse> create(@PathVariable UUID id, @Valid @RequestBody CreateProductImageRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productImageService.createImage(id, request));
     }
 

@@ -1,18 +1,20 @@
 package com.jackson_api.JacksonApi.application.dto.request;
 
-import com.jackson_api.JacksonApi.domain.entity.OrderDetail;
-import com.jackson_api.JacksonApi.domain.enums.OrderStatus;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Getter @Setter
 public class CreateOrderRequest {
+
+    @NotNull(message = "El usuario es requerido")
     UUID userId;
+
+    @NotBlank(message = "La dirección de envío es requerida")
     String shippingAddress;
+
     String shippingReference;
 }
