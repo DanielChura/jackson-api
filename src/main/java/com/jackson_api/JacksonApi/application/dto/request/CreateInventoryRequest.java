@@ -14,15 +14,15 @@ import java.util.UUID;
 public class CreateInventoryRequest {
 
     @NotNull(message = "El producto es requerido")
-    UUID productId;
+    private UUID productId;
 
     @NotNull(message = "El tipo de movimiento es requerido")
-    MovementType movementType;
+    private MovementType movementType;
 
     @NotNull(message = "La cantidad es requerida")
     @Positive(message = "La cantidad debe ser mayor a 0")
-    Short quantity;
+    private Short quantity;
 
     @NotBlank(message = "El motivo es requerido")
-    String reason;
+    private String reason;
 }

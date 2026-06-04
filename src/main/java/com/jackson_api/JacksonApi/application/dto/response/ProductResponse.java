@@ -11,13 +11,13 @@ import java.util.UUID;
 @Setter
 public class ProductResponse {
 
-    public UUID id;
-    public String name;
-    public String slug;
-    public String description;
-    public BigDecimal price;
-    public Short stock;
-    public String categoryName;
-    public String brandName;
-    public Map<String, String> specifications;
+    UUID id;
+    String name;
+    String slug;
+    String description;
+    BigDecimal price;
+    Short stock;
+    String categoryName;
+    String brandName;
+    Map<String, String> specifications;
 }

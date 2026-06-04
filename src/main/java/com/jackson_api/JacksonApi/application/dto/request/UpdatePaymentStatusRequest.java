@@ -10,5 +10,5 @@ import lombok.Setter;
 public class UpdatePaymentStatusRequest {
 
     @NotNull(message = "El estado es requerido")
-    PaymentStatus status;
+    private PaymentStatus status;
 }

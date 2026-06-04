@@ -14,12 +14,12 @@ import java.util.UUID;
 public class CreatePaymentRequest {
 
     @NotNull(message = "La orden es requerida")
-    UUID orderId;
+    private UUID orderId;
 
     @NotNull(message = "El método de pago es requerido")
-    PaymentMethod paymentMethod;
+    private PaymentMethod paymentMethod;
 
     @NotNull(message = "El monto es requerido")
     @Positive(message = "El monto debe ser mayor a 0")
-    BigDecimal amount;
+    private BigDecimal amount;
 }

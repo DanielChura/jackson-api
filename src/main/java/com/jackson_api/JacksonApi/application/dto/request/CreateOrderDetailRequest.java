@@ -12,9 +12,9 @@ import java.util.UUID;
 public class CreateOrderDetailRequest {
 
     @NotNull(message = "El producto es requerido")
-    UUID productId;
+    private UUID productId;
 
     @NotNull(message = "La cantidad es requerida")
     @Positive(message = "La cantidad debe ser mayor a 0")
-    Short quantity;
+    private Short quantity;
 }

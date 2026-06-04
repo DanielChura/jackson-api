@@ -11,7 +11,7 @@ public class UpdateReviewRequest {
 
     @Min(value = 1, message = "El rating mínimo es 1")
     @Max(value = 5, message = "El rating máximo es 5")
-    Short rating;
+    private Short rating;
 
-    String comment;
+    private String comment;
 }

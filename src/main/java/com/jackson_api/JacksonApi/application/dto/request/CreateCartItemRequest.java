@@ -11,12 +11,12 @@ import java.util.UUID;
 public class CreateCartItemRequest {
 
     @NotNull(message = "El carrito es requerido")
-    UUID cartId;
+    private UUID cartId;
 
     @NotNull(message = "El producto es requerido")
-    UUID productId;
+    private UUID productId;
 
     @NotNull(message = "La cantidad es requerida")
     @Positive(message = "La cantidad debe ser mayor a 0")
-    Short quantity;
+    private Short quantity;
 }

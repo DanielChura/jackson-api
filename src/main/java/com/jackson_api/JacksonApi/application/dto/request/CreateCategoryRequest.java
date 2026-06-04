@@ -9,9 +9,9 @@ import lombok.Setter;
 public class CreateCategoryRequest {
 
     @NotBlank(message = "El nombre es requerido")
-    String name;
+    private String name;
 
-    String description;
+    private String description;
 
-    String imageUrl;
+    private String imageUrl;
 }

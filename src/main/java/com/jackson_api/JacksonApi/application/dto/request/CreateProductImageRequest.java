@@ -11,9 +11,9 @@ import lombok.Setter;
 public class CreateProductImageRequest {
 
     @NotBlank(message = "La URL de la imagen es requerida")
-    String url;
+    private String url;
 
     @NotNull(message = "El orden de visualización es requerido")
     @PositiveOrZero(message = "El orden no puede ser negativo")
-    Short displayOrder;
+    private Short displayOrder;
 }
