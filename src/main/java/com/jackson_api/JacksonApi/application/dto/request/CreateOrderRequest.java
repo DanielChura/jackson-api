@@ -10,9 +10,6 @@ import java.util.UUID;
 @Getter @Setter
 public class CreateOrderRequest {
 
-    @NotNull(message = "El usuario es requerido")
-    UUID userId;
-
     @NotBlank(message = "La dirección de envío es requerida")
     String shippingAddress;
 

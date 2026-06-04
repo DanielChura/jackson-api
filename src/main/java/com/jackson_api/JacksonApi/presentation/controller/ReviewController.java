@@ -4,8 +4,10 @@ import com.jackson_api.JacksonApi.application.dto.request.CreateReviewRequest;
 import com.jackson_api.JacksonApi.application.dto.request.UpdateReviewRequest;
 import com.jackson_api.JacksonApi.application.dto.response.ReviewResponse;
 import com.jackson_api.JacksonApi.application.service.ReviewService;
+import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +23,8 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping
-    public ResponseEntity<List<ReviewResponse>> getAll() {
-        return ResponseEntity.ok(reviewService.getAllReviews());
+    public ResponseEntity<PagedResponse<ReviewResponse>> getAll(Pageable pageable) {
+        return ResponseEntity.ok(PagedResponse.from(reviewService.getAllReviews(pageable)));
     }
 
     @GetMapping("/{id}")

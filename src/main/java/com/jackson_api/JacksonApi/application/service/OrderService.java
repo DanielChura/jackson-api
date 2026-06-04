@@ -7,8 +7,10 @@ import com.jackson_api.JacksonApi.domain.entity.Order;
 import com.jackson_api.JacksonApi.domain.entity.User;
 import com.jackson_api.JacksonApi.domain.enums.OrderStatus;
 import com.jackson_api.JacksonApi.domain.repository.OrderRepository;
-import com.jackson_api.JacksonApi.domain.repository.UserRepository;
+import com.jackson_api.JacksonApi.infrastructure.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,11 +21,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
+    private final SecurityUtil securityUtil;
     private final OrderMapper orderMapper;
 
-    public List<OrderResponse> getAllOrders() {
-        return orderRepository.findAll().stream().map(orderMapper::toResponse).toList();
+    public Page<OrderResponse> getAllOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(orderMapper::toResponse);
     }
 
     public OrderResponse getOrderById(UUID id) {
@@ -38,8 +40,7 @@ public class OrderService {
     }
 
     public OrderResponse create(CreateOrderRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuario no existe"));
+        User user = securityUtil.getCurrentUser();
 
         Order order = new Order();
         order.setUser(user);

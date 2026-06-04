@@ -8,6 +8,8 @@ import com.jackson_api.JacksonApi.domain.entity.ProductImage;
 import com.jackson_api.JacksonApi.domain.repository.ProductImageRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +22,8 @@ public class ProductImageService {
     private final ProductRepository productRepository;
     private final ProductImageMapper productImageMapper;
 
-    public List<ProductImageResponse> getAllImages() {
-        return productImageRepository.findAll().stream().map(productImageMapper::toResponse).toList();
+    public Page<ProductImageResponse> getAllImages(Pageable pageable) {
+        return productImageRepository.findAll(pageable).map(productImageMapper::toResponse);
     }
 
     public List<ProductImageResponse> getImageByProductId(UUID id) {

@@ -1,14 +1,14 @@
 package com.jackson_api.JacksonApi.presentation.controller;
 
 import com.jackson_api.JacksonApi.application.dto.request.CreateOrderDetailRequest;
-import com.jackson_api.JacksonApi.application.dto.request.CreateOrderRequest;
 import com.jackson_api.JacksonApi.application.dto.response.OrderDetailResponse;
 import com.jackson_api.JacksonApi.application.dto.response.OrderResponse;
 import com.jackson_api.JacksonApi.application.service.OrderDetailService;
+import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +22,8 @@ public class OrderDetailController {
     private final OrderDetailService orderDetailService;
 
     @GetMapping
-    public ResponseEntity<List<OrderDetailResponse>> findAll(){
-        return ResponseEntity.status(HttpStatus.OK).body(orderDetailService.findAllDetails());
+    public ResponseEntity<PagedResponse<OrderDetailResponse>> findAll(Pageable pageable){
+        return ResponseEntity.ok(PagedResponse.from(orderDetailService.findAllDetails(pageable)));
     }
 
     @GetMapping("/{id}")

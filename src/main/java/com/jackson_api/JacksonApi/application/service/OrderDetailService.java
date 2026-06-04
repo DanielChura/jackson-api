@@ -13,6 +13,8 @@ import com.jackson_api.JacksonApi.domain.repository.OrderRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,8 +31,8 @@ public class OrderDetailService {
     private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
 
-    public List<OrderDetailResponse> findAllDetails() {
-        return orderDetailRepository.findAll().stream().map(orderDetailMapper::toResponse).toList();
+    public Page<OrderDetailResponse> findAllDetails(Pageable pageable) {
+        return orderDetailRepository.findAll(pageable).map(orderDetailMapper::toResponse);
     }
 
     @Transactional

@@ -13,7 +13,7 @@ public class CategoryMapper {
         Category category = new Category();
         category.setName(request.getName());
         category.setDescription(request.getDescription());
-        category.setImageUrl(request.getImageUrl().orElse(""));
+        category.setImageUrl(request.getImageUrl() != null ? request.getImageUrl() : "");
         return category;
     }
 

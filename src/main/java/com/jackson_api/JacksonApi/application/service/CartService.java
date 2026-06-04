@@ -1,6 +1,5 @@
 package com.jackson_api.JacksonApi.application.service;
 
-import com.jackson_api.JacksonApi.application.dto.request.CreateCartRequest;
 import com.jackson_api.JacksonApi.application.dto.response.CartItemResponse;
 import com.jackson_api.JacksonApi.application.dto.response.CartResponse;
 import com.jackson_api.JacksonApi.application.mapper.CartItemMapper;
@@ -9,9 +8,11 @@ import com.jackson_api.JacksonApi.domain.entity.Cart;
 import com.jackson_api.JacksonApi.domain.entity.User;
 import com.jackson_api.JacksonApi.domain.repository.CartItemRepository;
 import com.jackson_api.JacksonApi.domain.repository.CartRepository;
-import com.jackson_api.JacksonApi.domain.repository.UserRepository;
+import com.jackson_api.JacksonApi.infrastructure.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,10 +26,10 @@ public class CartService {
     private final CartItemMapper cartItemMapper;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final UserRepository userRepository;
+    private final SecurityUtil securityUtil;
 
-    public List<CartResponse> getAllCart(){
-        return cartRepository.findAll().stream().map(this::buildCartResponse).toList();
+    public Page<CartResponse> getAllCart(Pageable pageable){
+        return cartRepository.findAll(pageable).map(this::buildCartResponse);
     }
 
     public CartResponse getCartById(UUID id){
@@ -37,10 +38,10 @@ public class CartService {
         return buildCartResponse(cart);
     }
 
-    public CartResponse createCart(@NonNull CreateCartRequest request){
-        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new RuntimeException("Usuario no existe"));
+    public CartResponse createCart(){
+        User user = securityUtil.getCurrentUser();
 
-        if (cartRepository.findByUserId(request.getUserId()).isPresent()) {
+        if (cartRepository.findByUserId(user.getId()).isPresent()) {
             throw new RuntimeException("El usuario ya tiene un carrito");
         }
 

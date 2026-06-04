@@ -3,8 +3,10 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateProductImageRequest;
 import com.jackson_api.JacksonApi.application.dto.response.ProductImageResponse;
 import com.jackson_api.JacksonApi.application.service.ProductImageService;
+import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +21,8 @@ public class ProductImageController {
     private final ProductImageService productImageService;
 
     @GetMapping()
-    public ResponseEntity<List<ProductImageResponse>> getAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(productImageService.getAllImages());
+    public ResponseEntity<PagedResponse<ProductImageResponse>> getAll(Pageable pageable) {
+        return ResponseEntity.ok(PagedResponse.from(productImageService.getAllImages(pageable)));
     }
 
     @GetMapping("/product/{id}")

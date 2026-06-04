@@ -11,9 +11,11 @@ import com.jackson_api.JacksonApi.domain.entity.Product;
 import com.jackson_api.JacksonApi.domain.entity.User;
 import com.jackson_api.JacksonApi.domain.repository.FavoriteRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
-import com.jackson_api.JacksonApi.domain.repository.UserRepository;
+import com.jackson_api.JacksonApi.infrastructure.security.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,10 +28,10 @@ public class FavoriteService {
     private final FavoriteMapper favoriteMapper;
     private final FavoriteRepository favoriteRepository;
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+    private final SecurityUtil securityUtil;
 
-    public List<FavoriteResponse> findAllFavorites() {
-        return favoriteMapper.toResponses(favoriteRepository.findAll());
+    public Page<FavoriteResponse> findAllFavorites(Pageable pageable) {
+        return favoriteRepository.findAll(pageable).map(favoriteMapper::toResponse);
     }
 
     public List<FavoriteResponse> findFavoritesByUser(UUID id) {
@@ -38,8 +40,7 @@ public class FavoriteService {
 
     @Transactional
     public FavoriteResponse addFavorite(CreateFavoriteRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User user = securityUtil.getCurrentUser();
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 

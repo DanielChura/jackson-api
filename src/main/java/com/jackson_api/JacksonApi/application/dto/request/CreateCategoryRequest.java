@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Optional;
-
 @Getter
 @Setter
 public class CreateCategoryRequest {
@@ -15,5 +13,5 @@ public class CreateCategoryRequest {
 
     String description;
 
-    Optional<String> imageUrl;
+    String imageUrl;
 }

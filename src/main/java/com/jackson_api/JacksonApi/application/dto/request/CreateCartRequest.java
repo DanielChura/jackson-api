@@ -9,6 +9,4 @@ import java.util.UUID;
 @Getter @Setter
 public class CreateCartRequest {
 
-    @NotNull(message = "El usuario es requerido")
-    UUID userId;
 }

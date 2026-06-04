@@ -7,9 +7,10 @@ import com.jackson_api.JacksonApi.domain.entity.Brand;
 import com.jackson_api.JacksonApi.domain.repository.BrandRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -19,10 +20,8 @@ public class BrandService {
     private final BrandRepository brandRepository;
     private final BrandMapper brandMapper;
 
-    public List<BrandResponse> getAllBrands() {
-        return brandRepository.findAll().stream()
-                .map(brandMapper::toResponse)
-                .toList();
+    public Page<BrandResponse> getAllBrands(Pageable pageable) {
+        return brandRepository.findAll(pageable).map(brandMapper::toResponse);
     }
 
     public BrandResponse getBrandById(UUID id) {

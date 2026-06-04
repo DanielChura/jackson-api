@@ -9,9 +9,11 @@ import com.jackson_api.JacksonApi.domain.entity.Review;
 import com.jackson_api.JacksonApi.domain.entity.User;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import com.jackson_api.JacksonApi.domain.repository.ReviewRepository;
-import com.jackson_api.JacksonApi.domain.repository.UserRepository;
+import com.jackson_api.JacksonApi.infrastructure.security.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,12 +24,12 @@ import java.util.UUID;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ReviewMapper reviewMapper;
+    private final SecurityUtil securityUtil;
 
-    public List<ReviewResponse> getAllReviews() {
-        return reviewMapper.toResponseList(reviewRepository.findAll());
+    public Page<ReviewResponse> getAllReviews(Pageable pageable) {
+        return reviewRepository.findAll(pageable).map(reviewMapper::toResponse);
     }
 
     public ReviewResponse getReviewById(UUID id) {
@@ -46,8 +48,7 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse createReview(CreateReviewRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User user = securityUtil.getCurrentUser();
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 

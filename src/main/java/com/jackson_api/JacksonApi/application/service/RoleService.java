@@ -6,9 +6,10 @@ import com.jackson_api.JacksonApi.application.mapper.RoleMapper;
 import com.jackson_api.JacksonApi.domain.entity.Role;
 import com.jackson_api.JacksonApi.domain.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -17,8 +18,8 @@ public class RoleService {
     private final RoleMapper roleMapper;
     private final RoleRepository roleRepository;
 
-    public List<RoleResponse> getAllRoles() {
-        return roleRepository.findAll().stream().map(roleMapper::toResponse).toList();
+    public Page<RoleResponse> getAllRoles(Pageable pageable) {
+        return roleRepository.findAll(pageable).map(roleMapper::toResponse);
     }
 
     public RoleResponse getRoleById(UUID id) {

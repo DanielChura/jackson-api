@@ -8,6 +8,7 @@ import com.jackson_api.JacksonApi.domain.entity.Product;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class ProductMapper {
@@ -33,7 +34,7 @@ public class ProductMapper {
         return product;
     }
 
-    public ProductResponse toResponse(Product request){
+    public ProductResponse toResponse(Product request) {
         ProductResponse response = new ProductResponse();
 
         response.setId(request.getId());
@@ -47,5 +48,9 @@ public class ProductMapper {
         response.setSpecifications(request.getSpecifications());
 
         return response;
+    }
+
+    public List<ProductResponse> toResponses(List<Product> productList) {
+        return productList.stream().map(this::toResponse).toList();
     }
 }

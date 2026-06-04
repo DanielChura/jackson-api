@@ -3,8 +3,10 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateInventoryRequest;
 import com.jackson_api.JacksonApi.application.dto.response.InventoryResponse;
 import com.jackson_api.JacksonApi.application.service.InventoryMovementService;
+import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +22,8 @@ public class InventoryMovementController {
     private final InventoryMovementService inventoryMovementService;
 
     @GetMapping
-    public ResponseEntity<List<InventoryResponse>> findAll() {
-        return ResponseEntity.ok(inventoryMovementService.findAll());
+    public ResponseEntity<PagedResponse<InventoryResponse>> findAll(Pageable pageable) {
+        return ResponseEntity.ok(PagedResponse.from(inventoryMovementService.findAll(pageable)));
     }
 
     @GetMapping("/{id}")

@@ -38,3 +38,4 @@ ROADMAP.md
 .DS_Store
 application-local.*
 application-secret.*
+.env

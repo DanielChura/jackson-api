@@ -13,6 +13,8 @@ import com.jackson_api.JacksonApi.domain.repository.OrderRepository;
 import com.jackson_api.JacksonApi.domain.repository.PaymentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,8 +30,8 @@ public class PaymentService {
     private final InventoryMovementService inventoryMovementService;
     private final PaymentMapper paymentMapper;
 
-    public List<PaymentResponse> getAllPayments() {
-        return paymentMapper.toResponseList(paymentRepository.findAll());
+    public Page<PaymentResponse> getAllPayments(Pageable pageable) {
+        return paymentRepository.findAll(pageable).map(paymentMapper::toResponse);
     }
 
     public PaymentResponse getPaymentById(UUID id) {

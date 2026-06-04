@@ -3,15 +3,17 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateUserRequest;
 import com.jackson_api.JacksonApi.application.dto.response.UserResponse;
 import com.jackson_api.JacksonApi.application.service.UserService;
+import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,9 +23,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping()
-    public ResponseEntity<List<UserResponse>> getAll() {
-        List<UserResponse> response = userService.getAllUsers();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PagedResponse<UserResponse>> getAll(Pageable pageable) {
+        return ResponseEntity.ok(PagedResponse.from(userService.getAllUsers(pageable)));
     }
 
     @GetMapping("/{id}")
@@ -45,6 +47,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> delete(@PathVariable UUID id) {
         userService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

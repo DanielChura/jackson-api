@@ -15,7 +15,7 @@ public record GlobalExceptionHandlerResponse(
 ) {
     public GlobalExceptionHandlerResponse
             (Integer status, String error, String message, String path, Map<String, String> errors) {
-        this(LocalDateTime.now(), status, error, message, path, null);
+        this(LocalDateTime.now(), status, error, message, path, errors);
     }
 
 }

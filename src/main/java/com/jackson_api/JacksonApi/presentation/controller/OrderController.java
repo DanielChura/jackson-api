@@ -4,10 +4,13 @@ import com.jackson_api.JacksonApi.application.dto.request.CreateOrderRequest;
 import com.jackson_api.JacksonApi.application.dto.request.UpdateOrderStatusRequest;
 import com.jackson_api.JacksonApi.application.dto.response.OrderResponse;
 import com.jackson_api.JacksonApi.application.service.OrderService;
+import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +23,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAll(){
-        return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrders());
+    public ResponseEntity<PagedResponse<OrderResponse>> getAll(Pageable pageable){
+        return ResponseEntity.ok(PagedResponse.from(orderService.getAllOrders(pageable)));
     }
 
     @GetMapping("/{id}")
@@ -40,6 +43,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrderResponse> update(@PathVariable UUID id, @Valid @RequestBody UpdateOrderStatusRequest request){
 
         return ResponseEntity.status(HttpStatus.OK).body(orderService.updateStatus(id, request.getStatus()));

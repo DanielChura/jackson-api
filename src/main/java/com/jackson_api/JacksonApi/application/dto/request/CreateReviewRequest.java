@@ -12,9 +12,6 @@ import java.util.UUID;
 @Setter
 public class CreateReviewRequest {
 
-    @NotNull(message = "El usuario es requerido")
-    UUID userId;
-
     @NotNull(message = "El producto es requerido")
     UUID productId;
 

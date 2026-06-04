@@ -10,6 +10,8 @@ import com.jackson_api.JacksonApi.domain.repository.InventoryMovementRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +25,8 @@ public class InventoryMovementService {
     private final InventoryMapper inventoryMapper;
     private final ProductRepository productRepository;
 
-    public List<InventoryResponse> findAll() {
-        return inventoryMapper.toResponses(inventoryMovementRepository.findAll());
+    public Page<InventoryResponse> findAll(Pageable pageable) {
+        return inventoryMovementRepository.findAll(pageable).map(inventoryMapper::toResponse);
     }
 
     public InventoryResponse findById(UUID id) {

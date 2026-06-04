@@ -8,11 +8,11 @@ import com.jackson_api.JacksonApi.domain.repository.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +32,8 @@ public class CategoryService {
         return categoryMapper.toResponse(category);
     }
 
-    public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .map(categoryMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<CategoryResponse> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable).map(categoryMapper::toResponse);
     }
 
     public CategoryResponse updateCategory(UUID id, CreateCategoryRequest request) {
@@ -44,7 +42,9 @@ public class CategoryService {
 
         category.setName(request.getName());
         category.setDescription(request.getDescription());
-        request.getImageUrl().ifPresent(category::setImageUrl);
+        if (request.getImageUrl() != null) {
+            category.setImageUrl(request.getImageUrl());
+        }
 
         Category updatedCategory = categoryRepository.save(category);
         return categoryMapper.toResponse(updatedCategory);

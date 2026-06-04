@@ -10,11 +10,11 @@ import com.jackson_api.JacksonApi.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,14 +26,8 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
 
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        List<UserResponse> responses = new ArrayList<>();
-        for (User user : users) {
-            responses.add(userMapper.toResponse(user));
-        }
-        ;
-        return responses;
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toResponse);
     }
 
     public UserResponse getUserById(UUID id) {

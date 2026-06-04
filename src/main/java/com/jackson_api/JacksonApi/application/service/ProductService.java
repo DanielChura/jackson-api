@@ -14,10 +14,10 @@ import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,15 +30,13 @@ public class ProductService {
     private final InventoryMovementService inventoryMovementService;
     private final ProductMapper productMapper;
 
-    public List<ProductResponse> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        List<ProductResponse> responses = new ArrayList<>();
-
-        for (Product product : products) {
-            responses.add(productMapper.toResponse(product));
+    public Page<ProductResponse> getAllProducts(String name, String category, String brand, Pageable pageable) {
+        String namePattern = null;
+        if (name != null && !name.isBlank()) {
+            namePattern = "%" + name.toLowerCase() + "%";
         }
-
-        return responses;
+        return productRepository.findByFilters(namePattern, category, brand, pageable)
+                .map(productMapper::toResponse);
     }
 
     public ProductResponse createProduct(@NonNull CreateProductRequest request) {
@@ -67,7 +65,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse updateProduct(UUID id, CreateProductRequest request) {
+    public ProductResponse updateProduct(UUID id, @NonNull CreateProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 

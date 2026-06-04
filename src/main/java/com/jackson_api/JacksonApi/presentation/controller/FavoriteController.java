@@ -3,8 +3,10 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateFavoriteRequest;
 import com.jackson_api.JacksonApi.application.dto.response.FavoriteResponse;
 import com.jackson_api.JacksonApi.application.service.FavoriteService;
+import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +22,8 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @GetMapping
-    public ResponseEntity<List<FavoriteResponse>> findAll(){
-        return  ResponseEntity.status(HttpStatus.OK).body(favoriteService.findAllFavorites());
+    public ResponseEntity<PagedResponse<FavoriteResponse>> findAll(Pageable pageable){
+        return ResponseEntity.ok(PagedResponse.from(favoriteService.findAllFavorites(pageable)));
     }
 
     @GetMapping("/user/{id}")
