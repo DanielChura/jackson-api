@@ -22,23 +22,25 @@ public class OrderDetailController {
     private final OrderDetailService orderDetailService;
 
     @GetMapping
-    public ResponseEntity<PagedResponse<OrderDetailResponse>> findAll(Pageable pageable){
+    public ResponseEntity<PagedResponse<OrderDetailResponse>> findAll(Pageable pageable) {
         return ResponseEntity.ok(PagedResponse.from(orderDetailService.findAllDetails(pageable)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDetailResponse> findById(@PathVariable UUID id){
+    public ResponseEntity<OrderDetailResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(orderDetailService.findDetailById(id));
     }
 
     @PostMapping("/order/{id}")
-    public ResponseEntity<OrderResponse> add(@PathVariable UUID id, @Valid @RequestBody List<CreateOrderDetailRequest> request){
+    public ResponseEntity<OrderResponse> add(@PathVariable UUID id,
+            @Valid @RequestBody List<CreateOrderDetailRequest> request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderDetailService.addOrderDetails(id,request));
+                .body(orderDetailService.addOrderDetails(id, request));
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable UUID id){
+    public ResponseEntity<?> delete(@PathVariable UUID id) {
         orderDetailService.deleteDetailById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

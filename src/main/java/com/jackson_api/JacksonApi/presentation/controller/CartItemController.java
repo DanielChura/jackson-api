@@ -29,19 +29,20 @@ public class CartItemController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CartItemResponse> update(@PathVariable UUID id, @Valid @RequestBody CreateCartItemRequest request) {
+    public ResponseEntity<CartItemResponse> update(@PathVariable UUID id,
+            @Valid @RequestBody CreateCartItemRequest request) {
         cartItemService.updateCartItem(id, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteById(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteById(@PathVariable UUID id) {
         cartItemService.deleteCartItem(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping("/cart/{cartId}")
-    public ResponseEntity deleteByCartId(@PathVariable UUID cartId) {
+    public ResponseEntity<?> deleteByCartId(@PathVariable UUID cartId) {
         cartItemService.deleteItemsByCartId(cartId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

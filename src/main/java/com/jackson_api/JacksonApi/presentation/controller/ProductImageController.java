@@ -31,12 +31,13 @@ public class ProductImageController {
     }
 
     @PostMapping("/product/{id}")
-    public ResponseEntity<ProductImageResponse> create(@PathVariable UUID id, @Valid @RequestBody CreateProductImageRequest request) {
+    public ResponseEntity<ProductImageResponse> create(@PathVariable UUID id,
+            @Valid @RequestBody CreateProductImageRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productImageService.createImage(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable UUID id) {
+    public ResponseEntity<?> delete(@PathVariable UUID id) {
         productImageService.deleteImage(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

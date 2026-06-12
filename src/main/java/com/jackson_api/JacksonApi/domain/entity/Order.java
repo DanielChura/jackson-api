@@ -1,7 +1,6 @@
 package com.jackson_api.JacksonApi.domain.entity;
 
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ public class Order {
     @Column(name = "status", nullable = false)
     private OrderStatus status;
 
-    @OneToMany( mappedBy = "order",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<OrderDetail> orderDetails = new ArrayList<>();
 

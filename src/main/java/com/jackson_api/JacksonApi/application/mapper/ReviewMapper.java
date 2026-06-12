@@ -1,7 +1,6 @@
 package com.jackson_api.JacksonApi.application.mapper;
 
 import com.jackson_api.JacksonApi.application.dto.request.CreateReviewRequest;
-import com.jackson_api.JacksonApi.application.dto.request.UpdateReviewRequest;
 import com.jackson_api.JacksonApi.application.dto.response.ReviewResponse;
 import com.jackson_api.JacksonApi.domain.entity.Product;
 import com.jackson_api.JacksonApi.domain.entity.Review;

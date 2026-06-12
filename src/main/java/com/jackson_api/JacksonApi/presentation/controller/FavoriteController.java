@@ -22,22 +22,22 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @GetMapping
-    public ResponseEntity<PagedResponse<FavoriteResponse>> findAll(Pageable pageable){
+    public ResponseEntity<PagedResponse<FavoriteResponse>> findAll(Pageable pageable) {
         return ResponseEntity.ok(PagedResponse.from(favoriteService.findAllFavorites(pageable)));
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<FavoriteResponse>> findByUser(@PathVariable UUID id){
-        return  ResponseEntity.status(HttpStatus.OK).body(favoriteService.findFavoritesByUser(id));
+    public ResponseEntity<List<FavoriteResponse>> findByUser(@PathVariable UUID id) {
+        return ResponseEntity.status(HttpStatus.OK).body(favoriteService.findFavoritesByUser(id));
     }
 
     @PostMapping()
-    public ResponseEntity<FavoriteResponse> add(@Valid @RequestBody CreateFavoriteRequest request){
-        return  ResponseEntity.status(HttpStatus.CREATED).body(favoriteService.addFavorite(request));
+    public ResponseEntity<FavoriteResponse> add(@Valid @RequestBody CreateFavoriteRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(favoriteService.addFavorite(request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable UUID id){
+    public ResponseEntity<?> delete(@PathVariable UUID id) {
         favoriteService.deleteFavorite(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

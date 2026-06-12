@@ -1,6 +1,5 @@
 package com.jackson_api.JacksonApi.domain.repository;
 
-import com.jackson_api.JacksonApi.application.dto.response.OrderDetailResponse;
 import com.jackson_api.JacksonApi.domain.entity.OrderDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 
