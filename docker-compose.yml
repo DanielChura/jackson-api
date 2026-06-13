@@ -2,27 +2,43 @@ services:
   postgres-db:
     image: postgres:latest
     container_name: postgres-db
+    restart: always
     environment:
-      POSTGRES_DB: jackson_db
-      POSTGRES_USER: daniel
-      POSTGRES_PASSWORD: root1234
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /data/postgres
     ports:
       - "5432:5432"
     networks:
       - jackson-network
     volumes:
-      - postgres_data:var/lib/postgresql/data
+      - postgres_data:/data/postgres
 
-  jackson-api:
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres-db
+    networks:
+      - jackson-network
+
+  api:
     container_name: jackson-api
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/jackson_db
-      SPRING_DATASOURCE_USERNAME: daniel
-      SPRING_DATASOURCE_PASSWORD: root1234
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
     ports:
       - "8080:8080"
     networks:
