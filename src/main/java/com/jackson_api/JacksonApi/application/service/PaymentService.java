@@ -66,7 +66,7 @@ public class PaymentService {
         Payment payment = paymentMapper.toCreate(request, order);
 
         payment.setStatus(PaymentStatus.PENDING);
-        payment.setTransactionId(UUID.randomUUID());
+        payment.setTransactionId(request.getTransactionId());
 
         return paymentMapper.toResponse(paymentRepository.save(payment));
     }
@@ -79,7 +79,6 @@ public class PaymentService {
         payment.setStatus(newStatus);
 
         if (newStatus == PaymentStatus.COMPLETED) {
-            payment.setPaidAt(LocalDateTime.now());
 
             Order order = payment.getOrder();
             order.setStatus(OrderStatus.PAID);
@@ -92,8 +91,7 @@ public class PaymentService {
                         detail.getProduct(),
                         detail.getQuantity(),
                         MovementType.SALE,
-                        motivo
-                );
+                        motivo);
             }
         }
 

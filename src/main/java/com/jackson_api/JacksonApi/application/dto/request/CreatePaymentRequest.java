@@ -22,4 +22,7 @@ public class CreatePaymentRequest {
     @NotNull(message = "El monto es requerido")
     @Positive(message = "El monto debe ser mayor a 0")
     private BigDecimal amount;
+
+    @NotNull(message = "El id de la transaccion es requerida")
+    private String transactionId;
 }

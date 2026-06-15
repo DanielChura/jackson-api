@@ -17,6 +17,6 @@ public class PaymentResponse {
     PaymentMethod paymentMethod;
     BigDecimal amount;
     PaymentStatus status;
-    UUID transactionId;
+    String transactionId;
     LocalDateTime paidAt;
 }

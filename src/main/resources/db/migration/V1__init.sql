@@ -70,7 +70,7 @@ CREATE TABLE carts (
 
 CREATE TABLE orders (
     id uuid NOT NULL PRIMARY KEY,
-    order_number BIGINT,
+    order_number VARCHAR(10),
     ordered_at TIMESTAMP(6) WITHOUT TIME ZONE,
     shipping_address VARCHAR(255) NOT NULL,
     shipping_reference VARCHAR(255),
@@ -114,10 +114,10 @@ CREATE TABLE payments (
     paid_at TIMESTAMP(6) WITHOUT TIME ZONE,
     payment_method VARCHAR(255) NOT NULL,
     status VARCHAR(255) NOT NULL,
-    transaction_id uuid,
+    transaction_id VARCHAR(255),
     order_id uuid NOT NULL,
     CONSTRAINT fk_payments_order_id FOREIGN KEY (order_id) REFERENCES orders(id),
-    CONSTRAINT chk_payments_payment_method CHECK (payment_method IN ('PAYPAL', 'CASH', 'YAPE', 'PLIN', 'BANK_TRANSFER', 'DEBIT_CARD', 'CREDIT_CARD')),
+    CONSTRAINT chk_payments_payment_method CHECK (payment_method IN ('PAYPAL', 'CASH', 'YAPE', 'PLIN', 'BANK_TRANSFER', 'DEBIT_CARD', 'CREDIT_CARD', 'STRIPE')),
     CONSTRAINT chk_payments_status CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'))
 );
 

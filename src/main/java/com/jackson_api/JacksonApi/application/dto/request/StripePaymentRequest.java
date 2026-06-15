@@ -1,8 +1,8 @@
 package com.jackson_api.JacksonApi.application.dto.request;
 
+import java.util.UUID;
+
 public record StripePaymentRequest(
-                String productName,
-                Long amount,
-                String currency) {
+        UUID orderId) {
 
 }

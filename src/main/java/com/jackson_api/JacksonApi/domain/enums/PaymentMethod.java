@@ -2,6 +2,7 @@ package com.jackson_api.JacksonApi.domain.enums;
 
 public enum PaymentMethod {
     PAYPAL,
+    STRIPE,
     CASH,
     YAPE,
     PLIN,

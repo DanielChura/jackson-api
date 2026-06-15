@@ -36,5 +36,5 @@ public class CreateProductRequest {
     @NotNull(message = "La marca es requerida")
     private UUID brandId;
 
-    private Map<String, String> specifications;
+    private Map<String, Object> specifications;
 }

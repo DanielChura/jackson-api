@@ -14,10 +14,14 @@ import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,6 +34,7 @@ public class ProductService {
     private final InventoryMovementService inventoryMovementService;
     private final ProductMapper productMapper;
 
+    @Cacheable(value = "productos", key = "{#name, #category, #brand, #pageable.pageNumber, #pageable.pageSize}")
     public Page<ProductResponse> getAllProducts(String name, String category, String brand, Pageable pageable) {
         String namePattern = null;
         if (name != null && !name.isBlank()) {
@@ -39,6 +44,25 @@ public class ProductService {
                 .map(productMapper::toResponse);
     }
 
+    @CacheEvict(value = "productos", allEntries = true)
+    @Transactional
+    public List<ProductResponse> createProductsBulk(@NonNull List<@NonNull CreateProductRequest> requests) {
+        List<ProductResponse> responses = new ArrayList<>();
+        for (CreateProductRequest req : requests) {
+            if (productRepository.existsByName(req.getName())) {
+                throw new RuntimeException("El producto ya existe: " + req.getName());
+            }
+            Category category = categoryRepository.findById(req.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category no encontrada"));
+            Brand brand = brandRepository.findById(req.getBrandId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Marca no encontrada"));
+            Product product = productMapper.toCreate(req, category, brand);
+            responses.add(productMapper.toResponse(productRepository.save(product)));
+        }
+        return responses;
+    }
+
+    @CacheEvict(value = "productos", allEntries = true)
     public ProductResponse createProduct(@NonNull CreateProductRequest request) {
 
         if (productRepository.existsByName(request.getName())) {
@@ -56,6 +80,7 @@ public class ProductService {
         return productMapper.toResponse(productSaved);
     }
 
+    @Cacheable(value = "productos", key = "#id")
     public ProductResponse getProductById(UUID id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
@@ -64,6 +89,7 @@ public class ProductService {
 
     }
 
+    @CacheEvict(value = "productos", allEntries = true)
     @Transactional
     public ProductResponse updateProduct(UUID id, @NonNull CreateProductRequest request) {
         Product product = productRepository.findById(id)
@@ -92,13 +118,13 @@ public class ProductService {
             String motivo = "Ajuste manual - " + product.getName()
                     + " (de " + oldStock + " a " + newStock + ")";
             inventoryMovementService.recordMovement(
-                    product, newStock, MovementType.ADJUSTMENT, motivo
-            );
+                    product, newStock, MovementType.ADJUSTMENT, motivo);
         }
 
         return response;
     }
 
+    @CacheEvict(value = "productos", allEntries = true)
     public void deleteProduct(UUID id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));

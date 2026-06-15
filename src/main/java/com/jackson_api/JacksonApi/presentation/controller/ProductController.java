@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -39,6 +40,13 @@ public class ProductController {
     public ResponseEntity<ProductResponse> getById(@PathVariable UUID id) {
         ProductResponse response = productService.getProductById(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ProductResponse>> createBulk(@Valid @RequestBody List<@Valid CreateProductRequest> products) {
+        List<ProductResponse> responses = productService.createProductsBulk(products);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responses);
     }
 
     @PostMapping()

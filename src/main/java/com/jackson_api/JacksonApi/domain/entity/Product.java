@@ -71,7 +71,7 @@ public class Product {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "specifications", columnDefinition = "jsonb")
-    private Map<String, String> specifications;
+    private Map<String, Object> specifications;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;

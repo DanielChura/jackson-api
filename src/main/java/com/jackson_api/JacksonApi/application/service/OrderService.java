@@ -42,8 +42,13 @@ public class OrderService {
     public OrderResponse create(CreateOrderRequest request) {
         User user = securityUtil.getCurrentUser();
 
+        Integer maxSuffix = orderRepository.findMaxOrderNumberSuffix();
+        int nextSeq = (maxSuffix == null) ? 1 : maxSuffix + 1;
+        String orderNumber = "ORD-" + String.format("%04d", nextSeq);
+
         Order order = new Order();
         order.setUser(user);
+        order.setOrderNumber(orderNumber);
         order.setShippingAddress(request.getShippingAddress());
         order.setShippingReference(request.getShippingReference());
         order.setSubtotal(BigDecimal.ZERO);

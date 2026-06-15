@@ -14,7 +14,7 @@ import java.util.UUID;
 public class OrderResponse {
     UUID id;
     UUID userId;
-    Long orderNumber;
+    String orderNumber;
     BigDecimal subtotal;
     BigDecimal taxes;
     BigDecimal total;

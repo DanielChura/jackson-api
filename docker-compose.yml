@@ -39,6 +39,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
     ports:
       - "8080:8080"
     networks:
@@ -47,9 +49,20 @@ services:
       postgres-db:
         condition: service_started
 
+  redis:
+    container_name: spring-redis
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data/redis
+    networks:
+      - jackson-network
+
 networks:
   jackson-network:
     driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:

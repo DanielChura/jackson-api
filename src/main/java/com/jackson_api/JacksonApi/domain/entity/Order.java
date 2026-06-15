@@ -37,8 +37,8 @@ public class Order {
     @ToString.Exclude
     private User user;
 
-    @Column(name = "order_number", unique = true, insertable = false, updatable = false)
-    private Long orderNumber;
+    @Column(name = "order_number", unique = true, length = 10)
+    private String orderNumber;
 
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
