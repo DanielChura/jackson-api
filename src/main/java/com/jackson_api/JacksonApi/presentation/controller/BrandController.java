@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("brand")
+@RequestMapping("/brands")
 public class BrandController {
 
     private final BrandService brandService;

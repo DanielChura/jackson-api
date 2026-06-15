@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("product")
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
 
