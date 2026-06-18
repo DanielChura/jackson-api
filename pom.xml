@@ -93,6 +93,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http5</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+
         <!-- Soporte específico de Flyway para bases de datos PostgreSQL -->
         <dependency>
             <groupId>org.flywaydb</groupId>
