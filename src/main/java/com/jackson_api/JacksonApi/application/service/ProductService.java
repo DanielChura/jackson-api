@@ -25,7 +25,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -53,7 +55,7 @@ public class ProductService {
 
     @Transactional
     @CacheEvict(value = "productos", allEntries = true)
-    public ProductResponse createProduct(@NonNull CreateProductRequest request, MultipartFile[] files) {
+    public ProductResponse createProduct(@NonNull CreateProductRequest request) {
 
         if (productRepository.existsByName(request.getName())) {
             throw new RuntimeException("El producto ya existe");
@@ -65,21 +67,7 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Marca no encontrada"));
 
         Product product = productMapper.toCreate(request, category, brand);
-        Product productSaved = productRepository.save(product);
-
-        if (files != null) {
-            short order = 0;
-            for (MultipartFile file : files) {
-                String url = cloudinaryService.uploadFile(file, "products");
-                ProductImage productImage = new ProductImage();
-                productImage.setProduct(productSaved);
-                productImage.setUrl(url);
-                productImage.setDisplayOrder(order++);
-                productImageRepository.save(productImage);
-            }
-        }
-
-        return productMapper.toResponse(productSaved);
+        return productMapper.toResponse(productRepository.save(product));
     }
 
     @Cacheable(value = "productos", key = "#id")
@@ -112,7 +100,6 @@ public class ProductService {
         product.setStock(newStock);
         product.setCategory(category);
         product.setBrand(brand);
-        product.setSpecifications(request.getSpecifications());
 
         ProductResponse response = productMapper.toResponse(productRepository.save(product));
 
@@ -144,5 +131,34 @@ public class ProductService {
         productImageRepository.delete(productImage);
     }
 
+    @Transactional
+    @CacheEvict(value = "productos", allEntries = true)
+    public ProductResponse updateSpecifications(UUID id, Map<String, Object> specifications) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+        product.setSpecifications(specifications);
+        return productMapper.toResponse(productRepository.save(product));
+    }
+
+    @Transactional
+    @CacheEvict(value = "productos", allEntries = true)
+    public List<ProductImageResponse> addImagesToProduct(UUID productId, MultipartFile[] files) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+
+        short order = (short) productImageRepository.findByProductId(productId).size();
+        List<ProductImage> images = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            String url = cloudinaryService.uploadFile(file, "products");
+            ProductImage productImage = new ProductImage();
+            productImage.setProduct(product);
+            productImage.setUrl(url);
+            productImage.setDisplayOrder(order++);
+            images.add(productImageRepository.save(productImage));
+        }
+
+        return images.stream().map(productImageMapper::toResponse).toList();
+    }
 
 }

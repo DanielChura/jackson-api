@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.UUID;
 
 @Setter
@@ -35,6 +34,4 @@ public class CreateProductRequest {
 
     @NotNull(message = "La marca es requerida")
     private UUID brandId;
-
-    private Map<String, Object> specifications;
 }

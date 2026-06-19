@@ -28,7 +28,6 @@ public class ProductMapper {
         product.setStock(request.getStock());
         product.setCategory(category);
         product.setBrand(brand);
-        product.setSpecifications(request.getSpecifications());
         product.setIsActive(true);
 
         return product;

@@ -13,13 +13,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -44,12 +44,10 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductResponse> create(
-            @RequestPart("product") @Valid CreateProductRequest product,
-            @RequestPart(value = "files", required = false) MultipartFile[] files) {
-        ProductResponse response = productService.createProduct(product, files);
+    public ResponseEntity<ProductResponse> create(@Valid @RequestBody CreateProductRequest product) {
+        ProductResponse response = productService.createProduct(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -66,6 +64,23 @@ public class ProductController {
     public ResponseEntity<?> delete(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/{id}/specifications")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProductResponse> updateSpecifications(
+            @PathVariable UUID id,
+            @RequestBody Map<String, Object> specifications) {
+        return ResponseEntity.ok(productService.updateSpecifications(id, specifications));
+    }
+
+    @PostMapping("/{id}/images")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ProductImageResponse>> addImages(
+            @PathVariable UUID id,
+            @RequestParam("files") MultipartFile[] files) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(productService.addImagesToProduct(id, files));
     }
 
     @GetMapping("/{productId}/images")
