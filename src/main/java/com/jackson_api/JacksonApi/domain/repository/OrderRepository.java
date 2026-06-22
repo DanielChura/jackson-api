@@ -45,10 +45,20 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             SELECT o.status, COUNT(o.id) AS count
             FROM orders o
             WHERE o.ordered_at BETWEEN :desde AND :hasta
+              AND o.status != 'CANCELLED'
             GROUP BY o.status
             """, nativeQuery = true)
     List<Object[]> findOrdersByStatus(@Param("desde") LocalDateTime desde,
                                       @Param("hasta") LocalDateTime hasta);
+
+    @Query(value = """
+            SELECT COUNT(DISTINCT o.user_id)
+            FROM orders o
+            WHERE o.ordered_at BETWEEN :desde AND :hasta
+              AND o.status != 'CANCELLED'
+            """, nativeQuery = true)
+    Long countDistinctCustomersByDateRange(@Param("desde") LocalDateTime desde,
+                                           @Param("hasta") LocalDateTime hasta);
 
     @Query(value = """
             SELECT o.id, o.order_number,

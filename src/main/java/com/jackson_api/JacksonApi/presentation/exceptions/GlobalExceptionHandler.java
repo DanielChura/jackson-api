@@ -56,6 +56,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<GlobalExceptionHandlerResponse> handleIllegalArgument
+            (IllegalArgumentException ex, HttpServletRequest request) {
+        GlobalExceptionHandlerResponse response = new GlobalExceptionHandlerResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Parámetro inválido",
+                ex.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<GlobalExceptionHandlerResponse> handleRuntime
             (RuntimeException ex, HttpServletRequest request) {

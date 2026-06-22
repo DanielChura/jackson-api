@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,5 +16,5 @@ public class DashboardSummaryResponse implements Serializable {
     Long totalOrders;
     BigDecimal averageTicket;
     Long totalCustomers;
-    Long lowStockProducts;
+    List<LowStockProductResponse> lowStockProducts;
 }

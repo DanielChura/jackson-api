@@ -54,4 +54,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
                                    @Param("limit") int limit);
 
     Long countByStockLessThanEqualAndIsActiveTrue(Short threshold);
+
+    @Query(value = """
+            SELECT p.id, p.name, p.stock
+            FROM products p
+            WHERE p.is_active = true AND p.stock <= :threshold
+            ORDER BY p.stock ASC
+            """, nativeQuery = true)
+    List<Object[]> findLowStockProducts(@Param("threshold") short threshold);
 }
