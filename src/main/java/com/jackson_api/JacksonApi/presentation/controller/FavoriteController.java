@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +27,13 @@ public class FavoriteController {
         return ResponseEntity.ok(PagedResponse.from(favoriteService.findAllFavorites(pageable)));
     }
 
+    @GetMapping("/mine")
+    public ResponseEntity<List<FavoriteResponse>> getMyFavorites() {
+        return ResponseEntity.status(HttpStatus.OK).body(favoriteService.getFavoritesForCurrentUser());
+    }
+
     @GetMapping("/user/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<FavoriteResponse>> findByUser(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(favoriteService.findFavoritesByUser(id));
     }

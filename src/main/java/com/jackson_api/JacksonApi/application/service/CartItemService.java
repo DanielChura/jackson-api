@@ -2,7 +2,9 @@ package com.jackson_api.JacksonApi.application.service;
 
 import com.jackson_api.JacksonApi.application.dto.request.CreateCartItemRequest;
 import com.jackson_api.JacksonApi.application.dto.response.CartItemResponse;
+import com.jackson_api.JacksonApi.application.dto.response.CartResponse;
 import com.jackson_api.JacksonApi.application.mapper.CartItemMapper;
+import com.jackson_api.JacksonApi.application.mapper.CartMapper;
 import com.jackson_api.JacksonApi.domain.entity.Cart;
 import com.jackson_api.JacksonApi.domain.entity.CartItem;
 import com.jackson_api.JacksonApi.domain.entity.Product;
@@ -13,18 +15,20 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CartItemService {
+    private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
     private final CartItemRepository cartItemRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
 
-    public CartItemResponse addCartItem(@NonNull CreateCartItemRequest request) {
+    public CartResponse addCartItem(@NonNull CreateCartItemRequest request) {
 
         if (request.getQuantity() <= 0) {
             throw new RuntimeException("La cantidad debe ser mayor a 0");
@@ -46,7 +50,8 @@ public class CartItemService {
             }
 
             existingItem.setQuantity(newQuantity);
-            return cartItemMapper.toResponse(cartItemRepository.save(existingItem));
+            cartItemRepository.save(existingItem);
+            return buildCartResponse(cart);
         }
 
         if (product.getStock() < request.getQuantity()) {
@@ -54,7 +59,20 @@ public class CartItemService {
         }
 
         CartItem cartItem = cartItemMapper.toCreate(cart, product, request);
-        return cartItemMapper.toResponse(cartItemRepository.save(cartItem));
+        cartItemRepository.save(cartItem);
+        return buildCartResponse(cart);
+    }
+
+    private CartResponse buildCartResponse(Cart cart) {
+        CartResponse response = cartMapper.toResponse(cart);
+        List<CartItemResponse> items = cartItemRepository.findByCartId(cart.getId())
+                .stream().map(cartItemMapper::toResponse).toList();
+        response.setItems(items);
+        BigDecimal total = items.stream()
+                .map(CartItemResponse::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        response.setTotal(total);
+        return response;
     }
 
     public void updateCartItem(UUID id, @NonNull CreateCartItemRequest request) {

@@ -1,17 +1,28 @@
 package com.jackson_api.JacksonApi.application.mapper;
 
 import com.jackson_api.JacksonApi.application.dto.request.CreateProductRequest;
+import com.jackson_api.JacksonApi.application.dto.response.ProductImageResponse;
 import com.jackson_api.JacksonApi.application.dto.response.ProductResponse;
+import com.jackson_api.JacksonApi.application.mapper.ProductImageMapper;
 import com.jackson_api.JacksonApi.domain.entity.Brand;
 import com.jackson_api.JacksonApi.domain.entity.Category;
 import com.jackson_api.JacksonApi.domain.entity.Product;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class ProductMapper {
+
+    private final CategoryMapper categoryMapper;
+    private final BrandMapper brandMapper;
+    private final ProductImageMapper productImageMapper;
+
     public Product toCreate(CreateProductRequest request, Category category, Brand brand) {
         Product product = new Product();
 
@@ -42,9 +53,14 @@ public class ProductMapper {
         response.setDescription(request.getDescription());
         response.setPrice(request.getPrice());
         response.setStock(request.getStock());
-        response.setCategoryName(request.getCategory().getName());
-        response.setBrandName(request.getBrand().getName());
+        response.setCategory(categoryMapper.toResponse(request.getCategory()));
+        response.setBrand(brandMapper.toResponse(request.getBrand()));
         response.setSpecifications(request.getSpecifications());
+        response.setImages(Optional.ofNullable(request.getImages())
+                .map(images -> images.stream()
+                        .map(productImageMapper::toResponse)
+                        .toList())
+                .orElse(Collections.emptyList()));
 
         return response;
     }

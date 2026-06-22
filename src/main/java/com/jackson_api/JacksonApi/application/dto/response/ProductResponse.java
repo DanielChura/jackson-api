@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,7 +20,8 @@ public class ProductResponse implements Serializable {
     String description;
     BigDecimal price;
     Short stock;
-    String categoryName;
-    String brandName;
+    CategoryResponse category;
+    BrandResponse brand;
     Map<String, Object> specifications;
+    List<ProductImageResponse> images;
 }

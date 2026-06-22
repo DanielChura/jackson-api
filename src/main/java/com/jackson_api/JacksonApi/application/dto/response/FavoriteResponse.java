@@ -9,6 +9,6 @@ import java.util.UUID;
 @Setter
 public class FavoriteResponse {
     UUID id;
-    UUID userId;
+    String userId;
     UUID productId;
 }

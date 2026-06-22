@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter @Setter
 public class CartResponse {
     UUID id;
-    UUID userId;
+    String userId;
     BigDecimal total;
     List<CartItemResponse> items;
 }

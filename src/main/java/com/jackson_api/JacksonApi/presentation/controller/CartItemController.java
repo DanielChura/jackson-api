@@ -2,6 +2,7 @@ package com.jackson_api.JacksonApi.presentation.controller;
 
 import com.jackson_api.JacksonApi.application.dto.request.CreateCartItemRequest;
 import com.jackson_api.JacksonApi.application.dto.response.CartItemResponse;
+import com.jackson_api.JacksonApi.application.dto.response.CartResponse;
 import com.jackson_api.JacksonApi.application.service.CartItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class CartItemController {
     }
 
     @PostMapping()
-    public ResponseEntity<CartItemResponse> create(@Valid @RequestBody CreateCartItemRequest request) {
+    public ResponseEntity<CartResponse> create(@Valid @RequestBody CreateCartItemRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItemService.addCartItem(request));
     }
 

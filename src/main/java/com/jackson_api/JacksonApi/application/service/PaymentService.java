@@ -6,11 +6,13 @@ import com.jackson_api.JacksonApi.application.mapper.PaymentMapper;
 import com.jackson_api.JacksonApi.domain.entity.Order;
 import com.jackson_api.JacksonApi.domain.entity.OrderDetail;
 import com.jackson_api.JacksonApi.domain.entity.Payment;
+import com.jackson_api.JacksonApi.domain.entity.Product;
 import com.jackson_api.JacksonApi.domain.enums.MovementType;
 import com.jackson_api.JacksonApi.domain.enums.OrderStatus;
 import com.jackson_api.JacksonApi.domain.enums.PaymentStatus;
 import com.jackson_api.JacksonApi.domain.repository.OrderRepository;
 import com.jackson_api.JacksonApi.domain.repository.PaymentRepository;
+import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
     private final InventoryMovementService inventoryMovementService;
     private final PaymentMapper paymentMapper;
 
@@ -63,8 +66,12 @@ public class PaymentService {
             throw new RuntimeException("El monto no coincide con el total de la orden");
         }
 
-        Payment payment = paymentMapper.toCreate(request, order);
+        var existing = paymentRepository.findByTransactionId(request.getTransactionId());
+        if (existing.isPresent()) {
+            return paymentMapper.toResponse(existing.get());
+        }
 
+        Payment payment = paymentMapper.toCreate(request, order);
         payment.setStatus(PaymentStatus.PENDING);
         payment.setTransactionId(request.getTransactionId());
 
@@ -76,23 +83,39 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
 
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            return paymentMapper.toResponse(payment);
+        }
+
         payment.setStatus(newStatus);
 
         if (newStatus == PaymentStatus.COMPLETED) {
-
             Order order = payment.getOrder();
-            order.setStatus(OrderStatus.PAID);
-            orderRepository.save(order);
+
+            if (order.getStatus() != OrderStatus.PENDING) {
+                throw new RuntimeException("La orden ya no esta pendiente");
+            }
 
             for (OrderDetail detail : order.getOrderDetails()) {
+                Product product = productRepository.findByIdWithLock(detail.getProduct().getId())
+                        .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+                if (product.getStock() < detail.getQuantity()) {
+                    throw new RuntimeException("Stock insuficiente para " + product.getName());
+                }
+
+                product.setStock((short) (product.getStock() - detail.getQuantity()));
+                productRepository.save(product);
+
                 String motivo = "Venta - " + detail.getQuantity() + "x " + detail.getProductName()
                         + " (Orden #" + order.getOrderNumber() + ")";
                 inventoryMovementService.recordMovement(
-                        detail.getProduct(),
-                        detail.getQuantity(),
-                        MovementType.SALE,
-                        motivo);
+                        product, detail.getQuantity(), MovementType.SALE, motivo);
             }
+
+            order.setStatus(OrderStatus.PAID);
+            orderRepository.save(order);
+            payment.setPaidAt(LocalDateTime.now());
         }
 
         return paymentMapper.toResponse(paymentRepository.save(payment));

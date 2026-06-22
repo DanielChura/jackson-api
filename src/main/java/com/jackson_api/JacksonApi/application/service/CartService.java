@@ -57,6 +57,17 @@ public class CartService {
         return buildCartResponse(cart);
     }
 
+    public CartResponse getCartForCurrentUser(){
+        User user = securityUtil.getCurrentUser();
+        return cartRepository.findByUserId(user.getId())
+                .map(this::buildCartResponse)
+                .orElseGet(() -> {
+                    Cart cart = new Cart();
+                    cart.setUser(user);
+                    return buildCartResponse(cartRepository.save(cart));
+                });
+    }
+
     private @NonNull CartResponse buildCartResponse(Cart cart) {
         CartResponse response = cartMapper.toResponse(cart);
 

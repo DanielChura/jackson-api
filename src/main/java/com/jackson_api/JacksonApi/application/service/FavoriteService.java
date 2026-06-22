@@ -35,6 +35,11 @@ public class FavoriteService {
         return favoriteMapper.toResponses(favoriteRepository.findByUser_Id(id));
     }
 
+    public List<FavoriteResponse> getFavoritesForCurrentUser() {
+        User user = securityUtil.getCurrentUser();
+        return findFavoritesByUser(user.getId());
+    }
+
     @Transactional
     public FavoriteResponse addFavorite(CreateFavoriteRequest request) {
         User user = securityUtil.getCurrentUser();

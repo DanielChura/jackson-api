@@ -13,7 +13,7 @@ public class CartMapper {
         CartResponse response = new CartResponse();
 
         response.setId(cart.getId());
-        response.setUserId(cart.getUser().getId());
+        response.setUserId(cart.getUser().getEmail());
         response.setItems(Collections.emptyList());
         response.setTotal(BigDecimal.ZERO);
 

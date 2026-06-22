@@ -4,14 +4,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class BrandResponse implements Serializable {
+public class TopProductResponse implements Serializable {
     private static final long serialVersionUID = 1L;
-    UUID id;
-    String name;
-    String description;
-    String logoUrl;
+
+    UUID productId;
+    String productName;
+    Long unitsSold;
+    BigDecimal revenue;
 }

@@ -53,11 +53,6 @@ public class OrderDetailService {
 
             if (existingDetail != null) {
                 short newQuantity = (short) (existingDetail.getQuantity() + quantity);
-
-                if (product.getStock() < newQuantity) {
-                    throw new RuntimeException("Sin suficiente stock");
-                }
-
                 existingDetail.setQuantity(newQuantity);
                 existingDetail.setSubtotal(existingDetail.getUnitPrice()
                         .multiply(BigDecimal.valueOf(newQuantity)));

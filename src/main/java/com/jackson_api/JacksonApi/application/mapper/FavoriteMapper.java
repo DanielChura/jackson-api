@@ -17,7 +17,7 @@ public class FavoriteMapper {
 
             response.setId(f.getId());
             response.setProductId(f.getProduct().getId());
-            response.setUserId(f.getUser().getId());
+            response.setUserId(f.getUser().getEmail());
 
             return response;
         }).toList();
@@ -27,7 +27,7 @@ public class FavoriteMapper {
         FavoriteResponse response = new FavoriteResponse();
 
         response.setId(favorite.getId());
-        response.setUserId(favorite.getUser().getId());
+        response.setUserId(favorite.getUser().getEmail());
         response.setProductId(favorite.getProduct().getId());
 
         return response;

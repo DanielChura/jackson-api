@@ -1,7 +1,5 @@
 package com.jackson_api.JacksonApi.presentation.controller;
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,31 +45,33 @@ public class StripeWebHookController {
         switch (event.getType()) {
             case "checkout.session.completed":
                 Session completedSession = getSessionFromEvent(event);
-                UUID completedPayment = getPaymentIdFromSession(completedSession);
-
-                paymentService.updatePaymentStatus(completedPayment, PaymentStatus.COMPLETED);
-                System.out.println("¡Pago exitoso confirmado por Stripe para la sesión: " + completedSession.getId());
+                processPaymentIfPending(completedSession, PaymentStatus.COMPLETED,
+                        "¡Pago exitoso confirmado por Stripe para la sesión: ");
                 break;
 
             case "checkout.session.expired":
                 Session expiredSession = getSessionFromEvent(event);
-                UUID expiredPayment = getPaymentIdFromSession(expiredSession);
-
-                paymentService.updatePaymentStatus(expiredPayment, PaymentStatus.FAILED);
-                System.out.println("Error al confirmar el pago por Stripe para la sesión: " + expiredSession.getId());
+                processPaymentIfPending(expiredSession, PaymentStatus.FAILED,
+                        "Error al confirmar el pago por Stripe para la sesión: ");
                 break;
 
             default:
                 System.out.println("Evento no manejado: " + event.getType());
         }
-        return ResponseEntity.ok("Recibido"); //
-
+        return ResponseEntity.ok("Recibido");
     }
 
-    private UUID getPaymentIdFromSession(Session completedSession) {
-        Payment payment = paymentRepository.findByTransactionId(completedSession.getId()).orElseThrow(
-                () -> new IllegalStateException("Error al obtener el payment"));
-        return payment.getId();
+    private void processPaymentIfPending(Session session, PaymentStatus targetStatus, String logMessage) {
+        Payment payment = paymentRepository.findByTransactionId(session.getId())
+                .orElseThrow(() -> new IllegalStateException("Error al obtener el payment"));
+
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            System.out.println("Webhook ignorado - pago ya procesado: " + session.getId());
+            return;
+        }
+
+        paymentService.updatePaymentStatus(payment.getId(), targetStatus);
+        System.out.println(logMessage + session.getId());
     }
 
     private Session getSessionFromEvent(Event event) {

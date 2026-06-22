@@ -15,7 +15,7 @@ import com.jackson_api.JacksonApi.domain.repository.BrandRepository;
 import com.jackson_api.JacksonApi.domain.repository.CategoryRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductImageRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.cache.annotation.CacheEvict;
@@ -32,6 +32,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -97,11 +98,8 @@ public class ProductService {
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
-        product.setStock(newStock);
         product.setCategory(category);
         product.setBrand(brand);
-
-        ProductResponse response = productMapper.toResponse(productRepository.save(product));
 
         if (!oldStock.equals(newStock)) {
             String motivo = "Ajuste manual - " + product.getName()
@@ -110,7 +108,8 @@ public class ProductService {
                     product, newStock, MovementType.ADJUSTMENT, motivo);
         }
 
-        return response;
+        productRepository.save(product);
+        return productMapper.toResponse(product);
     }
 
     @CacheEvict(value = "productos", allEntries = true)
