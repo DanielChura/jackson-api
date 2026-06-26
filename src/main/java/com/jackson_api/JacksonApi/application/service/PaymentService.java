@@ -15,17 +15,23 @@ import com.jackson_api.JacksonApi.domain.repository.PaymentRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
@@ -79,45 +85,72 @@ public class PaymentService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard", allEntries = true)
     public PaymentResponse updatePaymentStatus(UUID id, PaymentStatus newStatus) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
 
         if (payment.getStatus() != PaymentStatus.PENDING) {
+            log.info("Pago {} ya fue procesado previamente, estado actual: {}", id, payment.getStatus());
             return paymentMapper.toResponse(payment);
         }
-
-        payment.setStatus(newStatus);
 
         if (newStatus == PaymentStatus.COMPLETED) {
             Order order = payment.getOrder();
 
             if (order.getStatus() != OrderStatus.PENDING) {
-                throw new RuntimeException("La orden ya no esta pendiente");
+                log.warn("La orden {} ya no esta pendiente, estado: {}", order.getId(), order.getStatus());
+                payment.setStatus(PaymentStatus.FAILED);
+                payment.setPaidAt(LocalDateTime.now());
+                return paymentMapper.toResponse(paymentRepository.save(payment));
             }
 
-            for (OrderDetail detail : order.getOrderDetails()) {
-                Product product = productRepository.findByIdWithLock(detail.getProduct().getId())
-                        .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-
-                if (product.getStock() < detail.getQuantity()) {
-                    throw new RuntimeException("Stock insuficiente para " + product.getName());
-                }
-
-                product.setStock((short) (product.getStock() - detail.getQuantity()));
-                productRepository.save(product);
-
-                String motivo = "Venta - " + detail.getQuantity() + "x " + detail.getProductName()
-                        + " (Orden #" + order.getOrderNumber() + ")";
-                inventoryMovementService.recordMovement(
-                        product, detail.getQuantity(), MovementType.SALE, motivo);
+            List<String> stockErrors = checkStock(order);
+            if (!stockErrors.isEmpty()) {
+                log.warn("Stock insuficiente para orden {} ({}): {}",
+                        order.getOrderNumber(), order.getId(), String.join(", ", stockErrors));
+                payment.setStatus(PaymentStatus.FAILED);
+                payment.setPaidAt(LocalDateTime.now());
+                return paymentMapper.toResponse(paymentRepository.save(payment));
             }
+
+            decrementStock(order);
 
             order.setStatus(OrderStatus.PAID);
             orderRepository.save(order);
+            payment.setStatus(newStatus);
+            payment.setPaidAt(LocalDateTime.now());
+        } else {
+            payment.setStatus(newStatus);
             payment.setPaidAt(LocalDateTime.now());
         }
 
         return paymentMapper.toResponse(paymentRepository.save(payment));
+    }
+
+    private List<String> checkStock(Order order) {
+        List<String> errors = new ArrayList<>();
+        for (OrderDetail detail : order.getOrderDetails()) {
+            Product product = productRepository.findByIdWithLock(detail.getProduct().getId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + detail.getProductName()));
+            if (product.getStock() < detail.getQuantity()) {
+                errors.add(detail.getProductName()
+                        + " (disponible: " + product.getStock()
+                        + ", requerido: " + detail.getQuantity() + ")");
+            }
+        }
+        return errors;
+    }
+
+    private void decrementStock(Order order) {
+        for (OrderDetail detail : order.getOrderDetails()) {
+            Product product = productRepository.findByIdWithLock(detail.getProduct().getId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + detail.getProductName()));
+
+            String motivo = "Venta - " + detail.getQuantity() + "x " + detail.getProductName()
+                    + " (Orden #" + order.getOrderNumber() + ")";
+            inventoryMovementService.recordMovement(
+                    product, detail.getQuantity(), MovementType.SALE, motivo);
+        }
     }
 }

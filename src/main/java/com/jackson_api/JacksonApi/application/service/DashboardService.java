@@ -24,7 +24,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private static final List<String> VALID_GRANULARITIES = List.of("day", "week", "month");
     private static final short LOW_STOCK_THRESHOLD = 3;
 
     private final OrderRepository orderRepository;
@@ -63,17 +62,12 @@ public class DashboardService {
         return response;
     }
 
-    @Cacheable(value = "dashboard", key = "'salesByPeriod:' + #desde + ':' + #hasta + ':' + #granularity")
-    public List<SalesByPeriodResponse> getSalesByPeriod(LocalDate desde, LocalDate hasta, String granularity) {
-        if (!VALID_GRANULARITIES.contains(granularity)) {
-            throw new IllegalArgumentException(
-                    "Invalid granularity '" + granularity + "'. Allowed: day, week, month");
-        }
-
+    @Cacheable(value = "dashboard", key = "'salesByPeriod:' + #desde + ':' + #hasta")
+    public List<SalesByPeriodResponse> getSalesByPeriod(LocalDate desde, LocalDate hasta) {
         LocalDateTime start = toStartDateTime(desde);
         LocalDateTime end = toEndDateTime(hasta);
 
-        return orderRepository.findSalesByPeriod(start, end, granularity).stream()
+        return orderRepository.findSalesByPeriod(start, end, "day").stream()
                 .map(row -> {
                     SalesByPeriodResponse response = new SalesByPeriodResponse();
                     response.setPeriod(toLocalDateTime(row[0]).format(DateTimeFormatter.ISO_LOCAL_DATE));
@@ -106,10 +100,10 @@ public class DashboardService {
         LocalDateTime start = toStartDateTime(desde);
         LocalDateTime end = toEndDateTime(hasta);
 
-        return orderRepository.findOrdersByStatus(start, end).stream()
+        return orderRepository.findOrdersByStatusIncludingCancelled(start, end).stream()
                 .map(row -> {
                     OrderByStatusResponse response = new OrderByStatusResponse();
-                    response.setStatus((String) row[0]);
+                    response.setStatus(row[0].toString());
                     response.setCount(((Number) row[1]).longValue());
                     return response;
                 })

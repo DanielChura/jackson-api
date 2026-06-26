@@ -13,6 +13,7 @@ import com.jackson_api.JacksonApi.domain.repository.OrderRepository;
 import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class OrderDetailService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard", allEntries = true)
     public OrderResponse addOrderDetails(UUID orderId, List<CreateOrderDetailRequest> requests) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order no existe"));
@@ -81,6 +83,7 @@ public class OrderDetailService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard", allEntries = true)
     public void deleteDetailById(UUID id) {
         OrderDetail detail = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontro el detalle"));

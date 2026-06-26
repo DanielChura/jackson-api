@@ -35,6 +35,7 @@ build/
 ### Custom ###
 ROADMAP.md
 API_CONVENTIONS.md
+API_QUALITY_CHECKLIST.md
 *.log
 .DS_Store
 application-local.*

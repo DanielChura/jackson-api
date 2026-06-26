@@ -61,11 +61,7 @@ public class CartService {
         User user = securityUtil.getCurrentUser();
         return cartRepository.findByUserId(user.getId())
                 .map(this::buildCartResponse)
-                .orElseGet(() -> {
-                    Cart cart = new Cart();
-                    cart.setUser(user);
-                    return buildCartResponse(cartRepository.save(cart));
-                });
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado para el usuario"));
     }
 
     private @NonNull CartResponse buildCartResponse(Cart cart) {

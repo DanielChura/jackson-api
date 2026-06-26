@@ -77,6 +77,28 @@ public class StripeService {
                             .build());
         }
 
+        if (order.getTaxes().compareTo(BigDecimal.ZERO) > 0) {
+            paramsBuilder.addLineItem(
+                    SessionCreateParams.LineItem.builder()
+                            .setQuantity(1L)
+                            .setPriceData(
+                                    SessionCreateParams.LineItem.PriceData.builder()
+                                            .setCurrency("pen")
+                                            .setUnitAmount(order.getTaxes()
+                                                    .multiply(BigDecimal
+                                                            .valueOf(100))
+                                                    .longValue())
+                                            .setProductData(
+                                                    SessionCreateParams.LineItem.PriceData.ProductData
+                                                            .builder()
+                                                            .setName("Impuestos "
+                                                                    + order.getTaxes()
+                                                                    + "%")
+                                                            .build())
+                                            .build())
+                            .build());
+        }
+
         Session session = Session.create(paramsBuilder.build());
 
         CreatePaymentRequest paymentRequest = new CreatePaymentRequest();

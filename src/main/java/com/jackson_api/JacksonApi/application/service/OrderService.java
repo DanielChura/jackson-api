@@ -19,6 +19,7 @@ import com.jackson_api.JacksonApi.domain.repository.ProductRepository;
 import com.jackson_api.JacksonApi.infrastructure.security.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,7 @@ public class OrderService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard", allEntries = true)
     public OrderResponse create(CreateOrderRequest request) {
         User user = securityUtil.getCurrentUser();
 
@@ -110,6 +112,7 @@ public class OrderService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard", allEntries = true)
     public OrderResponse updateStatus(UUID id, OrderStatus status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order no existe"));

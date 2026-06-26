@@ -30,6 +30,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             WHERE (:name IS NULL OR LOWER(p.name) LIKE :name)
             AND (:category IS NULL OR p.category.name = :category)
             AND (:brand IS NULL OR p.brand.name = :brand)
+            AND p.isActive = true
+            AND p.stock > 0
             """)
     Page<Product> findByFilters(@Param("name") String namePattern,
                                 @Param("category") String category,

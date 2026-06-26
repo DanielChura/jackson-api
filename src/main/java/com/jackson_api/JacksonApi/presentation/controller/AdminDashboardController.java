@@ -35,10 +35,9 @@ public class AdminDashboardController {
     @GetMapping("/sales-by-period")
     public ResponseEntity<List<SalesByPeriodResponse>> getSalesByPeriod(
             @RequestParam(required = false) LocalDate desde,
-            @RequestParam(required = false) LocalDate hasta,
-            @RequestParam(defaultValue = "day") String granularity) {
+            @RequestParam(required = false) LocalDate hasta) {
         return ResponseEntity.ok(
-                dashboardService.getSalesByPeriod(startOrDefault(desde), endOrDefault(hasta), granularity));
+                dashboardService.getSalesByPeriod(startOrDefault(desde), endOrDefault(hasta)));
     }
 
     @GetMapping("/top-products")

@@ -3,9 +3,11 @@ package com.jackson_api.JacksonApi.application.service;
 import com.jackson_api.JacksonApi.application.dto.request.LoginRequest;
 import com.jackson_api.JacksonApi.application.dto.request.RegisterRequest;
 import com.jackson_api.JacksonApi.application.dto.response.AuthResponse;
+import com.jackson_api.JacksonApi.domain.entity.Cart;
 import com.jackson_api.JacksonApi.domain.entity.Role;
 import com.jackson_api.JacksonApi.domain.entity.User;
 import com.jackson_api.JacksonApi.domain.exceptions.ResourceNotFoundException;
+import com.jackson_api.JacksonApi.domain.repository.CartRepository;
 import com.jackson_api.JacksonApi.domain.repository.RoleRepository;
 import com.jackson_api.JacksonApi.domain.repository.UserRepository;
 import com.jackson_api.JacksonApi.infrastructure.security.JwtUtil;
@@ -20,6 +22,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CartRepository cartRepository;
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
@@ -53,6 +56,10 @@ public class AuthService {
         user.setIsActive(true);
 
         userRepository.save(user);
+
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cartRepository.save(cart);
 
         String token = jwtUtil.generateToken(user.getId(), role.getName());
         return new AuthResponse(token, user.getEmail(), user.getRole().getName());
