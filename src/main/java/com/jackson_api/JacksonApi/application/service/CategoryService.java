@@ -8,6 +8,7 @@ import com.jackson_api.JacksonApi.domain.repository.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
+    @CacheEvict(value = "productos", allEntries = true)
     public CategoryResponse createCategory(CreateCategoryRequest request) {
         Category category = categoryMapper.toCreate(request);
         Category savedCategory = categoryRepository.save(category);
@@ -36,6 +38,7 @@ public class CategoryService {
         return categoryRepository.findAll(pageable).map(categoryMapper::toResponse);
     }
 
+    @CacheEvict(value = "productos", allEntries = true)
     public CategoryResponse updateCategory(UUID id, CreateCategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
@@ -50,6 +53,7 @@ public class CategoryService {
         return categoryMapper.toResponse(updatedCategory);
     }
 
+    @CacheEvict(value = "productos", allEntries = true)
     public void deleteCategory(UUID id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));

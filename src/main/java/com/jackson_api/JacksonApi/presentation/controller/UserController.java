@@ -3,6 +3,7 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateUserRequest;
 import com.jackson_api.JacksonApi.application.dto.response.UserResponse;
 import com.jackson_api.JacksonApi.application.service.UserService;
+import com.jackson_api.JacksonApi.domain.entity.User;
 import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/users")
@@ -32,6 +34,11 @@ public class UserController {
     public ResponseEntity<UserResponse> getById(@PathVariable UUID id) {
         UserResponse response = userService.getUserById(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMyProfile() {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getMyProfile());
     }
 
     @PostMapping()

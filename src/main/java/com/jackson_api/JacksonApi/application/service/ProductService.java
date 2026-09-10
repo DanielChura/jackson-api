@@ -3,6 +3,7 @@ package com.jackson_api.JacksonApi.application.service;
 import com.jackson_api.JacksonApi.application.dto.request.CreateProductRequest;
 import com.jackson_api.JacksonApi.application.dto.response.ProductImageResponse;
 import com.jackson_api.JacksonApi.application.dto.response.ProductResponse;
+import com.jackson_api.JacksonApi.application.dto.response.TopProductResponse;
 import com.jackson_api.JacksonApi.application.mapper.ProductImageMapper;
 import com.jackson_api.JacksonApi.application.mapper.ProductMapper;
 import com.jackson_api.JacksonApi.domain.entity.Brand;
@@ -21,10 +22,13 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,14 +48,31 @@ public class ProductService {
     private final ProductImageMapper productImageMapper;
     private final CloudinaryService cloudinaryService;
 
-    @Cacheable(value = "productos", key = "{#name, #category, #brand, #pageable.pageNumber, #pageable.pageSize}")
-    public Page<ProductResponse> getAllProducts(String name, String category, String brand, Pageable pageable) {
+    @Cacheable(value = "productos", key = "{#name, #category, #brand, #sortBy, #pageable.pageNumber, #pageable.pageSize}")
+    public Page<ProductResponse> getAllProducts(String name, String category, String brand, String sortBy,
+            Pageable pageable) {
         String namePattern = null;
         if (name != null && !name.isBlank()) {
             namePattern = "%" + name.toLowerCase() + "%";
         }
-        return productRepository.findByFilters(namePattern, category, brand, pageable)
-                .map(productMapper::toResponse);
+
+        return switch (sortBy) {
+            case "popular" -> productRepository.findByFiltersOrderByPopularity(
+                    namePattern, category, brand, pageable)
+                    .map(productMapper::toResponse);
+            default -> {
+                Sort sort = switch (sortBy) {
+                    case "recent" -> Sort.by("createdAt").descending();
+                    case "price-asc" -> Sort.by("price").ascending();
+                    case "price-desc" -> Sort.by("price").descending();
+                    case "name" -> Sort.by("name").ascending();
+                    default -> Sort.by("price").descending();
+                };
+                Pageable sorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+                yield productRepository.findByFilters(namePattern, category, brand, sorted)
+                        .map(productMapper::toResponse);
+            }
+        };
     }
 
     @Transactional
@@ -78,6 +99,38 @@ public class ProductService {
 
         return productMapper.toResponse(product);
 
+    }
+
+    public List<ProductResponse> getRecentProducts(int limit) {
+        return productRepository.findByFilters(null, null, null,
+                PageRequest.of(0, limit, Sort.by("createdAt").descending()))
+                .getContent()
+                .stream()
+                .map(productMapper::toResponse)
+                .toList();
+    }
+
+    public List<TopProductResponse> getPopularProducts(int limit) {
+        LocalDateTime desde = LocalDateTime.now().minusMonths(3);
+        LocalDateTime hasta = LocalDateTime.now();
+        return productRepository.findPopularProducts(desde, hasta, limit)
+                .stream()
+                .map(row -> {
+                    TopProductResponse resp = new TopProductResponse();
+                    resp.setProductId((UUID) row[0]);
+                    resp.setProductName((String) row[1]);
+                    resp.setUnitsSold(((Number) row[2]).longValue());
+                    resp.setRevenue((BigDecimal) row[3]);
+                    return resp;
+                })
+                .toList();
+    }
+
+    public List<ProductResponse> getMostFavorited(int limit) {
+        return productRepository.findMostFavorited(PageRequest.of(0, limit))
+                .stream()
+                .map(productMapper::toResponse)
+                .toList();
     }
 
     @CacheEvict(value = "productos", allEntries = true)
@@ -124,6 +177,8 @@ public class ProductService {
                 .map(productImageMapper::toResponse).toList();
     }
 
+    @Transactional
+    @CacheEvict(value = "productos", allEntries = true)
     public void deleteImage(UUID imageId) {
         ProductImage productImage = productImageRepository.findById(imageId)
                 .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));

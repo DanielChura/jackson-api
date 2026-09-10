@@ -7,6 +7,8 @@ import com.jackson_api.JacksonApi.domain.entity.Role;
 import com.jackson_api.JacksonApi.domain.entity.User;
 import com.jackson_api.JacksonApi.domain.repository.RoleRepository;
 import com.jackson_api.JacksonApi.domain.repository.UserRepository;
+import com.jackson_api.JacksonApi.infrastructure.security.SecurityUtil;
+
 import lombok.RequiredArgsConstructor;
 
 import org.jspecify.annotations.NonNull;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserMapper userMapper;
+    private final SecurityUtil securityUtil;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -74,5 +77,9 @@ public class UserService {
     public void delete(UUID id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         userRepository.delete(user);
+    }
+
+    public UserResponse getMyProfile() {
+        return userMapper.toResponse(securityUtil.getCurrentUser());
     }
 }

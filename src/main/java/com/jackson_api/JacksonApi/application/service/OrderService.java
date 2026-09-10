@@ -48,14 +48,13 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(UUID id) {
-        return orderMapper.toResponse(orderRepository.findById(id).orElseThrow(()
-                -> new RuntimeException("No existe esta orden")));
+        return orderMapper.toResponse(
+                orderRepository.findById(id).orElseThrow(() -> new RuntimeException("No existe esta orden")));
     }
 
-    public List<OrderResponse> getByUserId(UUID id) {
-        return orderRepository.findByUser_Id(id).stream()
-                .map(orderMapper::toResponse)
-                .toList();
+    public Page<OrderResponse> getByUserId(UUID id, Pageable pageable) {
+        return orderRepository.findByUser_Id(id, pageable)
+                .map(orderMapper::toResponse);
     }
 
     @Transactional
@@ -132,5 +131,11 @@ public class OrderService {
 
         order.setStatus(status);
         return orderMapper.toResponse(orderRepository.save(order));
+    }
+
+    public Page<OrderResponse> getMineOrders(Pageable pageable) {
+        User user = securityUtil.getCurrentUser();
+        return orderRepository.findByUser_Id(user.getId(), pageable)
+                .map(orderMapper::toResponse);
     }
 }

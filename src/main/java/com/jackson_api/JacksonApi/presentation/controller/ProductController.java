@@ -3,15 +3,14 @@ package com.jackson_api.JacksonApi.presentation.controller;
 import com.jackson_api.JacksonApi.application.dto.request.CreateProductRequest;
 import com.jackson_api.JacksonApi.application.dto.response.ProductImageResponse;
 import com.jackson_api.JacksonApi.application.dto.response.ProductResponse;
+import com.jackson_api.JacksonApi.application.dto.response.TopProductResponse;
 import com.jackson_api.JacksonApi.application.service.ProductService;
 import com.jackson_api.JacksonApi.presentation.response.PagedResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,8 +33,25 @@ public class ProductController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String brand,
-            @PageableDefault(page = 0, size = 20) @SortDefault(sort = "price", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(PagedResponse.from(productService.getAllProducts(name, category, brand, pageable)));
+            @RequestParam(defaultValue = "price-desc") String sortBy,
+            @PageableDefault(page = 0, size = 20) Pageable pageable) {
+        return ResponseEntity
+                .ok(PagedResponse.from(productService.getAllProducts(name, category, brand, sortBy, pageable)));
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<ProductResponse>> getRecent() {
+        return ResponseEntity.ok(productService.getRecentProducts(10));
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<TopProductResponse>> getPopular() {
+        return ResponseEntity.ok(productService.getPopularProducts(10));
+    }
+
+    @GetMapping("/most-favorited")
+    public ResponseEntity<List<ProductResponse>> getMostFavorited() {
+        return ResponseEntity.ok(productService.getMostFavorited(10));
     }
 
     @GetMapping("/{id}")

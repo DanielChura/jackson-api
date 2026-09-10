@@ -1,9 +1,7 @@
 package com.jackson_api.JacksonApi.application.mapper;
 
 import com.jackson_api.JacksonApi.application.dto.request.CreateProductRequest;
-import com.jackson_api.JacksonApi.application.dto.response.ProductImageResponse;
 import com.jackson_api.JacksonApi.application.dto.response.ProductResponse;
-import com.jackson_api.JacksonApi.application.mapper.ProductImageMapper;
 import com.jackson_api.JacksonApi.domain.entity.Brand;
 import com.jackson_api.JacksonApi.domain.entity.Category;
 import com.jackson_api.JacksonApi.domain.entity.Product;

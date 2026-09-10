@@ -83,7 +83,7 @@ public class DashboardService {
         LocalDateTime start = toStartDateTime(desde);
         LocalDateTime end = toEndDateTime(hasta);
 
-        return productRepository.findTopProducts(start, end, limit).stream()
+        return productRepository.findPopularProducts(start, end, limit).stream()
                 .map(row -> {
                     TopProductResponse response = new TopProductResponse();
                     response.setProductId(toUUID(row[0]));
